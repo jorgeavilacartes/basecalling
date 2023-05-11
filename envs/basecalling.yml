@@ -1,0 +1,19 @@
+name: basecalling
+channels:
+  - conda-forge
+  - bioconda
+  - anaconda
+  - pytorch 
+  - nvidia
+dependencies:
+  - python >= 3.10, < 3.11
+  - ipykernel
+  - h5py 
+  - jupyterlab
+  - seaborn
+  - pytorch 
+  - torchvision
+  - torchaudio
+  - pytorch-cuda=11.7
+  - pip: 
+    - ont-fast5-api
