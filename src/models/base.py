@@ -31,7 +31,7 @@ class SimpleNet(nn.Module):
         # linear layer
         self.flatten1 = nn.Flatten()
         self.fc1 = nn.Linear(
-            in_features = 800, out_features = 500
+            in_features = 51050, out_features = 500
         )
         self.relu3 = nn.ReLU()
 
@@ -53,11 +53,11 @@ class SimpleNet(nn.Module):
         x = self.maxpool2(x)
 
         # third block: linear
-        x = self.flatten1(x,1)
+        x = self.flatten1(x)
         x = self.fc1(x)
         x = self.relu3(x)
 
         # output linear layer
         output = self.fc2(x)
 
-        return x
+        return output

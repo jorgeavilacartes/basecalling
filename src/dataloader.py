@@ -1,3 +1,4 @@
+import numpy as np
 import h5py
 from pathlib import Path
 from typing import Union
@@ -26,8 +27,10 @@ class DatasetONT(Dataset):
         h5 = h5py.File(self.recfile, "r")
         signal, label = h5["events"][index], h5["labels"][index]
         h5.close()
-        return signal, label
 
+        # include channel to signal [Channel, Signal]
+        return np.expand_dims(signal,axis=0), label
+        
     def __len__(self,):
         "number of pairs (signal, label) in the input file"
-        return self.metadata["n_signals"]
+        return self.metadata["n_signal"]

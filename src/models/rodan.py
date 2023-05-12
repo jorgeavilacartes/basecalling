@@ -1,4 +1,5 @@
 import torch.nn as nn 
+
 # FIXME: clean code and write missing parts
 # https://github.com/biodlab/RODAN/blob/029f7d5eb31b11b53537f13164bfedee0c0786e4/model.py#L187
 class Rodan(nn.Module):
