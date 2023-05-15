@@ -49,4 +49,5 @@ class SimpleNet(nn.Module):
         # output linear layer
         output = self.fc2(x)
 
+        # TODO: add log softmax (required for CTC loss, check paper https://www.cs.toronto.edu/~graves/icml_2006.pdf)
         return output

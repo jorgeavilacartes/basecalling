@@ -1,3 +1,5 @@
+# https://github.com/biodlab/RODAN/blob/029f7d5eb31b11b53537f13164bfedee0c0786e4/model.py#L187
+
 import sys
 import torch.nn as nn 
 from .custom_layers import (
@@ -7,9 +9,6 @@ from .custom_layers import (
 )
 
 from collections import namedtuple
-
-# FIXME: clean code and write missing parts
-# https://github.com/biodlab/RODAN/blob/029f7d5eb31b11b53537f13164bfedee0c0786e4/model.py#L187
 
 # data to create RODAN's architecture 
 rna_default = [[-1, 256, 0, 3, 1, 1, 0], [-1, 256, 1, 10, 1, 1, 1], [-1, 256, 1, 10, 10, 1, 1], [-1, 320, 1, 10, 1, 1, 1], [-1, 384, 1, 15, 1, 1, 1], [-1, 448, 1, 20, 1, 1, 1], [-1, 512, 1, 25, 1, 1, 1], [-1, 512, 1, 30, 1, 1, 1], [-1, 512, 1, 35, 1, 1, 1], [-1, 512, 1, 40, 1, 1, 1], [-1, 512, 1, 45, 1, 1, 1], [-1, 512, 1, 50, 1, 1, 1], [-1, 768, 1, 55, 1, 1, 1], [-1, 768, 1, 60, 1, 1, 1], [-1, 768, 1, 65, 1, 1, 1], [-1, 768, 1, 70, 1, 1, 1], [-1, 768, 1, 75, 1, 1, 1], [-1, 768, 1, 80, 1, 1, 1], [-1, 768, 1, 85, 1, 1, 1], [-1, 768, 1, 90, 1, 1, 1], [-1, 768, 1, 95, 1, 1, 1], [-1, 768, 1, 100, 1, 1, 1]]
@@ -42,17 +41,13 @@ def activation_function(activation):
 class Rodan(nn.Module):
     def __init__(self, config=None, arch=rna_default, seqlen=4096, debug=False):
         super(Rodan, self).__init__()
-        
-        # if debug: print("Initializing network")
+
         if config is None:
             config = Config(*DEFAULTCONFIG)
         self.seqlen = seqlen
         self.vocab = config.vocab        
         self.bn = nn.BatchNorm1d
 
-        if arch == None: arch = rna_default
-
-        # FIXME: add the missing activation_function() 
         activation = activation_function(config.activation.lower())
         sqex_activation = activation_function(config.sqex_activation.lower())
 
@@ -81,9 +76,6 @@ class Rodan(nn.Module):
             if i == 0: expansion = False
 
             convsize = (convsize + (padding*2) - (kernel-stride))//stride
-            # if debug:
-            #     print("padding:", padding, TODO"seperable:", seperable, "ch", out_channels, "k:", kernel, "s:", stride, "sqex:", sqex, "drop:", dropout, "expansion:", expansion)
-            #     print("convsize:", convsize)
 
             self.convlayers.add_module(
                 "conv"+str(i), 
@@ -105,7 +97,6 @@ class Rodan(nn.Module):
             self.final_size = out_channels
          
         self.final = nn.Linear(self.final_size, len(self.vocab))
-        # if debug: print("Finished init network")
 
     def forward(self, x):
         x = self.convlayers(x)
