@@ -2,7 +2,7 @@
 import torch.nn as nn
 
 class Swish(nn.Module):
-    # TODO:  add description 
+    # TODO:  add description and link to paper
     
     def __init__(self, inplace=True):
         super(Swish, self).__init__()

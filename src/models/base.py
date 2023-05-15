@@ -11,34 +11,23 @@ class SimpleNet(nn.Module):
         super(SimpleNet, self).__init__()
 
         # first block
-        self.conv1 = nn.Conv1d(
-            in_channels  = n_channels, out_channels = 20, kernel_size  = 5, stride = 1
-        )
+        # TODO: change kernel size to 19, this will affect the later output
+        self.conv1 = nn.Conv1d(in_channels  = n_channels, out_channels = 20, kernel_size  = 5, stride = 1)
         self.relu1 = nn.ReLU()
-        self.maxpool1 = nn.MaxPool1d(
-            kernel_size = 2, stride = 2
-            )
+        self.maxpool1 = nn.MaxPool1d(kernel_size = 2, stride = 2)
 
         # second block
-        self.conv2 = nn.Conv1d(
-            in_channels  = 20, out_channels = 50, kernel_size = 5
-            )
+        self.conv2 = nn.Conv1d(in_channels  = 20, out_channels = 50, kernel_size = 5)
         self.relu2 = nn.ReLU()
-        self.maxpool2 = nn.MaxPool1d(
-            kernel_size = 2, stride = 2
-        )
+        self.maxpool2 = nn.MaxPool1d(kernel_size = 2, stride = 2)
         
         # linear layer
         self.flatten1 = nn.Flatten()
-        self.fc1 = nn.Linear(
-            in_features = 51050, out_features = 500
-        )
+        self.fc1 = nn.Linear(in_features = 51050, out_features = 500) # this output 51050 will be affected by the chose of kernel_size
         self.relu3 = nn.ReLU()
 
         # output linear layer
-        self.fc2 = nn.Linear(
-            in_features = 500, out_features = n_classes
-        )
+        self.fc2 = nn.Linear(in_features = 500, out_features = n_classes)
     
     def forward(self, x):
 

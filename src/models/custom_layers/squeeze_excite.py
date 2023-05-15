@@ -2,7 +2,7 @@
 import torch.nn as nn
 
 class SqueezeExcite(nn.Module):
-    # TODO: add description
+    # TODO: add description and link to paper
     
     def __init__(self, in_channels = 512, size=1, reduction="/16", activation=nn.GELU):
 
