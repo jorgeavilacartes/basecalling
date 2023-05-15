@@ -1,6 +1,6 @@
 # RNA Basecaller for ONT data
 
-### environmnet
+### Create and activate environmnet
 ```bash
 micromamba env create -n basecalling -f envs/basecalling.yml
 micromamba activate basecalling

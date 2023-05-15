@@ -3,7 +3,10 @@ import torch.nn as nn
 from torch import tanh
 
 class Mish(nn.Module):
-    # TODO: add description and link to paper
+    """
+    Mish: A self regularized non-monotonic activation function
+    https://arxiv.org/abs/1908.08681
+    """
     def __init__(self):
         super(Mish, self).__init__()
 
