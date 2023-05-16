@@ -1,7 +1,4 @@
-# A simple and lighweight neural network
-import torch.nn as nn
-
-# FIXME: check RODAN's code for the right output
+import torch.nn as nn 
 
 class SimpleNet(nn.Module):
     """A Conv1D net inspired in LeNet"""
@@ -12,23 +9,20 @@ class SimpleNet(nn.Module):
 
         # first block
         # TODO: change kernel size to 19, this will affect the later output
-        self.conv1 = nn.Conv1d(in_channels  = n_channels, out_channels = 20, kernel_size  = 5, stride = 1)
+        self.conv1 = nn.Conv1d(in_channels  = n_channels, out_channels = 20, kernel_size  = 20, stride = 2)
         self.relu1 = nn.ReLU()
-        self.maxpool1 = nn.MaxPool1d(kernel_size = 2, stride = 2)
+        self.maxpool1 = nn.MaxPool1d(kernel_size = 10, stride = 2)
 
         # second block
         self.conv2 = nn.Conv1d(in_channels  = 20, out_channels = 50, kernel_size = 5)
         self.relu2 = nn.ReLU()
-        self.maxpool2 = nn.MaxPool1d(kernel_size = 2, stride = 2)
+        self.maxpool2 = nn.MaxPool1d(kernel_size = 10, stride = 2)
         
         # linear layer
-        self.flatten1 = nn.Flatten()
-        self.fc1 = nn.Linear(in_features = 51050, out_features = 500) # this output 51050 will be affected by the chose of kernel_size
+        self.fc1 = nn.Linear(in_features = 50, out_features = 5) # this output 1021 will be affected by the chose of kernel_size
         self.relu3 = nn.ReLU()
 
-        # output linear layer
-        self.fc2 = nn.Linear(in_features = 500, out_features = n_classes)
-    
+
     def forward(self, x):
 
         # first block: convolution
@@ -41,13 +35,19 @@ class SimpleNet(nn.Module):
         x = self.relu2(x)
         x = self.maxpool2(x)
 
+        # permute dimension of conv output to apply linear layer to channel dimension
+        x = x.permute(0,2,1)
+
         # third block: linear
-        x = self.flatten1(x)
-        x = self.fc1(x)
-        x = self.relu3(x)
+        x = self.fc1(x) # x has shape [batch size, length, channels] (or in pytorch notation: [N, T, C])
+        
+        # apply log_softmax along the channel axis (alphabet)
+        # (required for CTC loss, check paper https://www.cs.toronto.edu/~graves/icml_2006.pdf)
+        x = nn.functional.log_softmax(input=x, dim=2)
 
-        # output linear layer
-        output = self.fc2(x)
-
-        # TODO: add log softmax (required for CTC loss, check paper https://www.cs.toronto.edu/~graves/icml_2006.pdf)
-        return output
+        # output a tensor of shape [T,N,C]
+        # T: lenght of output sequence
+        # N: batch size
+        # C: number of classes
+        # [N,T,C] -> [T,N,C]    
+        return x.permute(1,0,2)
