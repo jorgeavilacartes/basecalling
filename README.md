@@ -6,6 +6,11 @@ micromamba env create -n basecalling -f envs/basecalling.yml
 micromamba activate basecalling
 ```
 
+### Training
+```bash
+python feito/train.py --path-train <path-to-hdf5> --path-val <path-to-hdf5> --model Rodan --epochs 5 --batch-size 16 
+```
+
 #### Basecalling
 use beam search to decode the output of the neural network https://github.com/nanoporetech/fast-ctc-decode
 
