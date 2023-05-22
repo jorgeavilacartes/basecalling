@@ -2,9 +2,12 @@
 import torch
 from tqdm import tqdm
 from typing import Optional, Callable, List
+# from feito.callbacks import CSVLogger
 
 _Callbacks=Optional[List[Callable]]
 _Epoch=Optional[int]
+
+# csv_logger=CSVLogger(list_vars=["train_loss","val_loss"], out_file="output/training/metrics.csv", overwrite=False)
 
 class BasecallerTrainer:
 
@@ -20,9 +23,16 @@ class BasecallerTrainer:
     def fit(self, epochs):
         for t in range(epochs):
             epoch = t+1
-            train_losses = self.train_one_epoch(epoch)
-            val_losses   = self.validate_one_epoch(epoch)
+            train_loss = self.train_one_epoch(epoch)
+            val_loss   = self.validate_one_epoch(epoch)
+
+            # callbacks
+            for callback in self.callbacks:
+                print("calling callback")
+                callback()
+
         print("Done!")
+
 
 
     # Training
@@ -66,7 +76,7 @@ class BasecallerTrainer:
 
             # TODO: add callbacks
         
-        return losses 
+        return losses.item()
     
     # Validation
     def validate_one_batch(self, batch):
@@ -94,7 +104,7 @@ class BasecallerTrainer:
                 for n_batch, batch in enumerate(self.validation_loader):
 
                     # Description for progress bar
-                    progress_bar.set_description(f"Validation Epoch: {epoch} | Batch: {n_batch}/{n_batches}")
+                    progress_bar.set_description(f"Validate Epoch: {epoch} | Batch: {n_batch}/{n_batches}")
 
                     # compute loss function for the batch
                     loss = self.validate_one_batch(batch)
@@ -103,7 +113,7 @@ class BasecallerTrainer:
                     progress_bar.set_postfix(loss='%.4f' % loss)
                     progress_bar.update(1)
         
-        return torch.Tensor(losses).mean() 
+        return torch.Tensor(losses).mean().item() 
             
 
     # to consider accuracies of alinged reads in the validation step 
