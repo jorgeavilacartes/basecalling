@@ -1,14 +1,19 @@
 import torch.nn as nn 
 
+# output length is needed for CTC loss
+OUTPUT_LEN=501
+
 class SimpleNet(nn.Module):
     """A Conv1D net inspired in LeNet"""
 
-    def __init__(self, n_channels = 1, n_classes = 271):
+    def __init__(self, n_channels = 1,  output_len=501): #n_classes = 271,):
         # call parent constructor
         super(SimpleNet, self).__init__()
 
+        self.n_channels = n_channels
+        self.output_len = output_len
+
         # first block
-        # TODO: change kernel size to 19, this will affect the later output
         self.conv1 = nn.Conv1d(in_channels  = n_channels, out_channels = 20, kernel_size  = 20, stride = 2)
         self.relu1 = nn.ReLU()
         self.maxpool1 = nn.MaxPool1d(kernel_size = 10, stride = 2)

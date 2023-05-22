@@ -1,8 +1,8 @@
 # Trainer class was inspired from https://github.com/nanoporetech/bonito/blob/master/bonito/training.py
 from tqdm import tqdm
-from typing import Optional, Callable
+from typing import Optional, Callable, List
 
-_Callbacks=Optional[list[Callable]]
+_Callbacks=Optional[List[Callable]]
 _Epoch=Optional[int]
 
 class BasecallerTrainer:
@@ -77,41 +77,3 @@ class BasecallerTrainer:
     def validate_one_epoch(self,):
         # TODO: validate epoch
         pass
-
-
-    # def train(self, dataloader, model, loss_fn, optimizer, epoch: _Epoch):
-    #     """
-    #     training function
-    #     """
-    #     device = self.device
-    #     size = len(dataloader.dataset) # number of datapoints in the dataset
-    #     n_batches = len(dataloader)    # number of batches
-    #     model.train() # set model in training mode
-
-    #     with tqdm(total=n_batches, leave=True, ncols=100) as pbar:
-            
-    #         for batch, (X,y, input_len, target_len) in enumerate(dataloader):
-                
-    #             # Description for progress bar
-    #             if epoch:
-    #                 pbar.set_description(f"Epoch: {epoch} | batch: {batch}/{n_batches}")
-    #             else:
-    #                 pbar.set_description(f"batch {batch}/{n_batches}")
-                    
-    #             X, y, input_len, target_len = X.to(device), y.to(device), input_len.to(device), target_len.to(device)
-
-    #             # Compute prediction error
-    #             pred = model(X)
-    #             loss = loss_fn(pred, y, input_lengths=input_len, target_lengths=target_len)
-
-    #             # Backpropagation
-    #             optimizer.zero_grad()
-    #             loss.backward()
-    #             optimizer.step()
-
-    #             if batch % 100 == 0: 
-    #                 loss, current = loss.item(), (batch + 1) * len(X)
-    #                 # print(f"loss: {loss:>7f} [{current:>5d}/{size:>5d}]")
-
-    #             # update progress bar
-    #             pbar.update(1)

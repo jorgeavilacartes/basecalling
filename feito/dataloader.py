@@ -7,8 +7,8 @@ from typing import Union
 from torch.utils.data import Dataset
 
 class DatasetONT(Dataset):
-    """Load a single sample for training/evaluating the network
-    """    
+    "Load a single sample for training/evaluating the network"
+    
     def __init__(self, recfile: Union[str,Path], output_network_len: int):
         """
         Args:
@@ -32,22 +32,21 @@ class DatasetONT(Dataset):
 
     def __getitem__(self, index: int): 
         "return (signal, label) for one sample/individual in the dataset"
-        # "RODAN returns (signal, signal length, label, label length)"
+
         # open file with signals and labels
         h5 = h5py.File(self.recfile, "r")
         signal, label = h5["events"][index], h5["labels"][index]
         h5.close()
 
-        # include channel to signal [Channel, Signal]
+        # include channel to signal [Channel, Signal], and load data as Tensor
         signals = torch.from_numpy(np.expand_dims(signal,axis=0))
         labels = torch.from_numpy(label)
 
-        # w.r.t the loss function
+        # define target and input lengths of the loss function
         target_lens = torch.from_numpy(np.array(self.metadata["label_len"])) 
         input_lens = torch.from_numpy(np.array(self.metadata["output_network_len"]))
        
         return signals, labels, input_lens, target_lens
-        # return torch.from_numpy(np.expand_dims(signal,axis=0)), torch.from_numpy(label),
         
     def __len__(self,):
         "number of pairs (signal, label) in the input file"

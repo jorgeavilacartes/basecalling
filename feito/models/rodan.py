@@ -10,6 +10,8 @@ from .custom_layers import (
 
 from collections import namedtuple
 
+OUTPUT_LEN=420
+
 # data to create RODAN's architecture 
 rna_default = [[-1, 256, 0, 3, 1, 1, 0], [-1, 256, 1, 10, 1, 1, 1], [-1, 256, 1, 10, 10, 1, 1], [-1, 320, 1, 10, 1, 1, 1], [-1, 384, 1, 15, 1, 1, 1], [-1, 448, 1, 20, 1, 1, 1], [-1, 512, 1, 25, 1, 1, 1], [-1, 512, 1, 30, 1, 1, 1], [-1, 512, 1, 35, 1, 1, 1], [-1, 512, 1, 40, 1, 1, 1], [-1, 512, 1, 45, 1, 1, 1], [-1, 512, 1, 50, 1, 1, 1], [-1, 768, 1, 55, 1, 1, 1], [-1, 768, 1, 60, 1, 1, 1], [-1, 768, 1, 65, 1, 1, 1], [-1, 768, 1, 70, 1, 1, 1], [-1, 768, 1, 75, 1, 1, 1], [-1, 768, 1, 80, 1, 1, 1], [-1, 768, 1, 85, 1, 1, 1], [-1, 768, 1, 90, 1, 1, 1], [-1, 768, 1, 95, 1, 1, 1], [-1, 768, 1, 100, 1, 1, 1]]
 # dna_default = [[-1, 320, 0, 3, 1, 1, 0], [-1, 320, 1, 3, 3, 1, 1], [-1, 384, 1, 6, 1, 1, 1], [-1, 448, 1, 9, 1, 1, 1], [-1, 512, 1, 12, 1, 1, 1], [-1, 576, 1, 15, 1, 1, 1], [-1, 640, 1, 18, 1, 1, 1], [-1, 704, 1, 21, 1, 1, 1], [-1, 768, 1, 24, 1, 1, 1], [-1, 832, 1, 27, 1, 1, 1], [-1, 896, 1, 30, 1, 1, 1], [-1, 960, 1, 33, 1, 1, 1]]
@@ -39,7 +41,7 @@ def activation_function(activation):
         sys.exit(1)
 
 class Rodan(nn.Module):
-    def __init__(self, config=None, arch=rna_default, seqlen=4096, debug=False):
+    def __init__(self, config=None, arch=rna_default, seqlen=4096, output_len=OUTPUT_LEN):
         super(Rodan, self).__init__()
 
         if config is None:
@@ -47,7 +49,8 @@ class Rodan(nn.Module):
         self.seqlen = seqlen
         self.vocab = config.vocab        
         self.bn = nn.BatchNorm1d
-
+        self.output_len = output_len
+        
         activation = activation_function(config.activation.lower())
         sqex_activation = activation_function(config.sqex_activation.lower())
 
