@@ -24,9 +24,10 @@ DEFAULTCONFIG = dict(
     sqex_reduction=32
 )
 
-Config=namedtuple("CONFIG",["vocab", "activation_layer", "sqex_activation", "dropout", "sqex_reduction"])
+Config=namedtuple("CONFIG",["vocab", "activation", "sqex_activation", "dropout", "sqex_reduction"])
 
 def activation_function(activation):
+    print(f"Activation Function is: {activation}")
     "auxiliar function used in RODAN https://github.com/biodlab/RODAN/blob/master/model.py"
     if activation == "mish":
         return Mish
@@ -45,12 +46,15 @@ class Rodan(nn.Module):
         super(Rodan, self).__init__()
 
         if config is None:
-            config = Config(*DEFAULTCONFIG)
+            config = Config(*DEFAULTCONFIG.values())
+
+        print(config)
+        
         self.seqlen = seqlen
         self.vocab = config.vocab        
         self.bn = nn.BatchNorm1d
         self.output_len = output_len
-        
+
         activation = activation_function(config.activation.lower())
         sqex_activation = activation_function(config.sqex_activation.lower())
 

@@ -38,6 +38,7 @@ class BasecallerTrainer:
         losses.backward()
         self.optimizer.step()
 
+        # TODO: do we need this? used in bonito https://github.com/nanoporetech/bonito/blob/655feea4bca17feb77957c7f8be5077502292bcf/bonito/training.py#L133
         # losses = {
         #             k: (v.item() if losses is None else v.item()+ losses[k])
         #             for k, v in losses.items()
@@ -48,9 +49,6 @@ class BasecallerTrainer:
     def train_one_epoch(self, epoch: int):
         self.model.train()
         n_batches=len(self.train_loader)
-
-        # progress_bar=tqdm(total=n_batches), #leave=True, ncols=100,)
-        #                 #   bar_format='{l_bar}{bar}| [{elapsed}{postfix}]')
 
         with tqdm(total=n_batches, leave=True, ncols=100, bar_format='{l_bar}{bar}| [{elapsed}{postfix}]') as progress_bar:
 
@@ -72,8 +70,17 @@ class BasecallerTrainer:
     # Validation
     def validate_one_batch(self,):
         # TODO: validate one batch
+        # https://github.com/nanoporetech/bonito/blob/655feea4bca17feb77957c7f8be5077502292bcf/bonito/training.py#L185
         pass
 
     def validate_one_epoch(self,):
         # TODO: validate epoch
+        # https://github.com/nanoporetech/bonito/blob/655feea4bca17feb77957c7f8be5077502292bcf/bonito/training.py#L206
         pass
+
+
+    # to consider accuracies of alinged reads in the validation step 
+    # https://github.com/nanoporetech/bonito/blob/655feea4bca17feb77957c7f8be5077502292bcf/bonito/util.py#L354
+    # Rodan also has a code to consider a sam file and a reference but is not used in training or validation, they only computes loss
+    # https://github.com/biodlab/RODAN/blob/master/accuracy.py
+
