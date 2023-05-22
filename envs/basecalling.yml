@@ -16,6 +16,7 @@ dependencies:
   - torchaudio
   - pytorch-cuda=11.7
   - tqdm
+  - parasail-python
   - pip: 
     - ont-fast5-api
     - fast-ctc-decode # beam search and viterbi search

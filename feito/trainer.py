@@ -1,4 +1,5 @@
 # Trainer class was inspired from https://github.com/nanoporetech/bonito/blob/master/bonito/training.py
+import torch
 from tqdm import tqdm
 from typing import Optional, Callable, List
 
@@ -19,8 +20,8 @@ class BasecallerTrainer:
     def fit(self, epochs):
         for t in range(epochs):
             epoch = t+1
-            self.train_one_epoch(epoch)
-            # self.validate_one_epoch(epoch)
+            train_losses = self.train_one_epoch(epoch)
+            val_losses   = self.validate_one_epoch(epoch)
         print("Done!")
 
 
@@ -55,10 +56,8 @@ class BasecallerTrainer:
             for n_batch, batch in enumerate(self.train_loader):
 
                 # Description for progress bar
-                if epoch:
-                    progress_bar.set_description(f"Epoch: {epoch} | batch: {n_batch}/{n_batches}")
-                else:
-                    progress_bar.set_description(f"batch {n_batch}/{n_batches}")
+                progress_bar.set_description(f"Training Epoch: {epoch} | Batch: {n_batch}/{n_batches}")
+
 
                 losses=self.train_one_batch(batch)
 
@@ -66,18 +65,46 @@ class BasecallerTrainer:
                 progress_bar.update(1)
 
             # TODO: add callbacks
-
+        
+        return losses 
+    
     # Validation
-    def validate_one_batch(self,):
+    def validate_one_batch(self, batch):
         # TODO: validate one batch
         # https://github.com/nanoporetech/bonito/blob/655feea4bca17feb77957c7f8be5077502292bcf/bonito/training.py#L185
-        pass
-
-    def validate_one_epoch(self,):
+        self.model.eval()
+        X, y, output_len, target_len = (x.to(self.device) for x in batch)
+        preds  = self.model(X)
+        losses = self.criterion(preds, y, output_len, target_len)
+        
+        return losses  
+        
+    def validate_one_epoch(self, epoch):
         # TODO: validate epoch
         # https://github.com/nanoporetech/bonito/blob/655feea4bca17feb77957c7f8be5077502292bcf/bonito/training.py#L206
-        pass
+        self.model.eval()
+        n_batches=len(self.train_loader)
 
+        losses = []
+
+        with tqdm(total=n_batches, leave=True, ncols=100, bar_format='{l_bar}{bar}| [{elapsed}{postfix}]') as progress_bar:
+            
+            with torch.no_grad():
+                
+                for n_batch, batch in enumerate(self.validation_loader):
+
+                    # Description for progress bar
+                    progress_bar.set_description(f"Validation Epoch: {epoch} | Batch: {n_batch}/{n_batches}")
+
+                    # compute loss function for the batch
+                    loss = self.validate_one_batch(batch)
+                    losses.append(loss.item())        
+
+                    progress_bar.set_postfix(loss='%.4f' % loss)
+                    progress_bar.update(1)
+        
+        return torch.Tensor(losses).mean() 
+            
 
     # to consider accuracies of alinged reads in the validation step 
     # https://github.com/nanoporetech/bonito/blob/655feea4bca17feb77957c7f8be5077502292bcf/bonito/util.py#L354
