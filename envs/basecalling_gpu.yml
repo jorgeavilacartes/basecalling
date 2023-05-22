@@ -12,9 +12,10 @@ dependencies:
   - jupyterlab
   - seaborn
   - pytorch==1.12.1
-  - cudatoolkit=11.3
+  - cudatoolkit=11.3 # compatible with Cuda 11.3 and 11.4
   - tqdm
-  - parasail-python
+  - parasail-python # Smith-Waterman
+  - pyyaml
   - pip: 
     - ont-fast5-api
     - fast-ctc-decode # beam search and viterbi search

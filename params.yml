@@ -1,5 +1,10 @@
 EPOCHS: 5
 BATCH_SIZE: 16
 
-TRAINING: "../data/subsample_train.hdf5"
-VALIDATION: "../data/subsample_val.hdf5"
+TRAINING: "data/subsample_train.hdf5"
+VALIDATION: "data/subsample_val.hdf5"
+
+MODEL: "SimpleNet" # Rodan
+
+# Callbacks
+OUTFILE_TRAIN_LOGGER: "output/training/metrics.csv"
