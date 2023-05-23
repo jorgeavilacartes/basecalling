@@ -22,13 +22,13 @@ class BasecallerTrainer:
 
     def fit(self, epochs):
         for t in range(epochs):
-            epoch = t+1
+            epoch=t+1
             train_loss = self.train_one_epoch(epoch)
             val_loss   = self.validate_one_epoch(epoch)
 
             # callbacks
             for callback in self.callbacks:
-                print("calling callback")
+                print(f"calling callback {callback.__class__.__name__}")
                 callback()
 
         print("Done!")
@@ -48,12 +48,6 @@ class BasecallerTrainer:
         self.optimizer.zero_grad()
         losses.backward()
         self.optimizer.step()
-
-        # TODO: do we need this? used in bonito https://github.com/nanoporetech/bonito/blob/655feea4bca17feb77957c7f8be5077502292bcf/bonito/training.py#L133
-        # losses = {
-        #             k: (v.item() if losses is None else v.item()+ losses[k])
-        #             for k, v in losses.items()
-        #         }
         
         return losses
 
@@ -64,9 +58,9 @@ class BasecallerTrainer:
         with tqdm(total=n_batches, leave=True, ncols=100, bar_format='{l_bar}{bar}| [{elapsed}{postfix}]') as progress_bar:
 
             for n_batch, batch in enumerate(self.train_loader):
-
+                
                 # Description for progress bar
-                progress_bar.set_description(f"Training Epoch: {epoch} | Batch: {n_batch}/{n_batches}")
+                progress_bar.set_description(f"Training Epoch: {epoch} | Batch: {n_batch+1}/{n_batches}")
 
 
                 losses=self.train_one_batch(batch)
@@ -93,7 +87,7 @@ class BasecallerTrainer:
         # TODO: validate epoch
         # https://github.com/nanoporetech/bonito/blob/655feea4bca17feb77957c7f8be5077502292bcf/bonito/training.py#L206
         self.model.eval()
-        n_batches=len(self.train_loader)
+        n_batches=len(self.validation_loader)
 
         losses = []
 
@@ -104,7 +98,7 @@ class BasecallerTrainer:
                 for n_batch, batch in enumerate(self.validation_loader):
 
                     # Description for progress bar
-                    progress_bar.set_description(f"Validate Epoch: {epoch} | Batch: {n_batch}/{n_batches}")
+                    progress_bar.set_description(f"Validate Epoch: {epoch} | Batch: {n_batch+1}/{n_batches}")
 
                     # compute loss function for the batch
                     loss = self.validate_one_batch(batch)

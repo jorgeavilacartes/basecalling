@@ -25,9 +25,15 @@ def main(args):
     BATCH_SIZE=args.batch_size
     MODEL=args.model
     OUTFILE_TRAIN_LOGGER=args.outfile_train_logger
+    DEVICE=args.device 
+    print(PATH_TRAIN, PATH_VALIDATION, EPOCHS, BATCH_SIZE, MODEL, OUTFILE_TRAIN_LOGGER, DEVICE)
 
-    print(PATH_TRAIN, PATH_VALIDATION, EPOCHS, BATCH_SIZE, MODEL, OUTFILE_TRAIN_LOGGER)
-
+    if DEVICE is None:
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    else: 
+        device = DEVICE
+    print("Device" , device)
+    
     # network to use
     model=eval(f"{MODEL}()")
     model_output_len = model.output_len # another way to obtain the output of the model https://github.com/biodlab/RODAN/blob/029f7d5eb31b11b53537f13164bfedee0c0786e4/model.py#L317
@@ -47,7 +53,7 @@ def main(args):
     # Trainer
     trainer=Trainer(
         model=SimpleNet(),
-        device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
+        device=device,
         train_loader=dataloader_train,
         validation_loader=dataloader_val,
         criterion=loss_fn,
@@ -68,6 +74,7 @@ if __name__=="__main__":
     parser.add_argument("--batch-size", help="Number of elements in each batch", type=int, dest="batch_size", default=16)
     parser.add_argument("--model", help="Name of the model. Options: 'SimpleNet', 'Rodan'", type=str, dest="model", default="SimpleNet")
     parser.add_argument("--outfile-train-logger", help="File to store training and validation loss per epoch", type=str, dest="outfile_train_logger", default="output/training/metrics.csv")
+    parser.add_argument("--device", help="cpu or gpu", type=str, dest="device", default=None)
     args = parser.parse_args()
     
     main(args)

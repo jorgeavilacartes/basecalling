@@ -8,7 +8,7 @@ micromamba activate basecalling
 
 ### Training
 ```bash
-python feito/train.py --path-train <path-to-hdf5> --path-val <path-to-hdf5> --model Rodan --epochs 5 --batch-size 16 
+python feito/train.py --path-train data/subsample_train.hdf5 --path-val data/subsample_val.hdf5 --model Rodan --epochs 5 --batch-size 16
 ```
 ___ 
 ### Code structure
