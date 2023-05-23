@@ -2,8 +2,8 @@
 
 ### Create and activate environmnet
 ```bash
-micromamba env create -n basecalling -f envs/basecalling.yml
-micromamba activate basecalling
+micromamba env create -n basecalling-cuda117 -f envs/basecalling_cuda11.7_pytorch2.yml
+micromamba activate basecalling-cuda117
 ```
 
 ### Training
