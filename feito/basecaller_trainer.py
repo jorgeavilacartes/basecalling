@@ -2,14 +2,12 @@
 import torch
 from tqdm import tqdm
 from typing import Optional, Callable, List
-# from feito.callbacks import CSVLogger
 
 _Callbacks=Optional[List[Callable]]
 _Epoch=Optional[int]
 
-# csv_logger=CSVLogger(list_vars=["train_loss","val_loss"], out_file="output/training/metrics.csv", overwrite=False)
-
 class BasecallerTrainer:
+    "Training and Validation of a model"
 
     def __init__(self, model, device, train_loader, validation_loader, criterion, optimizer, callbacks: _Callbacks):
         self.model=model.to(device) 
