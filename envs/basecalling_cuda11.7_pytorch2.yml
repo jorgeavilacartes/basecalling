@@ -1,0 +1,21 @@
+name: basecalling
+channels:
+  - conda-forge
+  - bioconda
+  - anaconda
+  - pytorch 
+  - nvidia
+dependencies:
+  - python >=3.10, <3.11
+  - ipykernel
+  - h5py 
+  - jupyterlab
+  - seaborn
+  - pytorch=2.0
+  - cudatoolkit=11.7
+  - tqdm
+  - parasail-python # Smith-Waterman
+  - pyyaml
+  - pip: 
+    - ont-fast5-api
+    - fast-ctc-decode # beam search and viterbi search
