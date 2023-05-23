@@ -33,7 +33,7 @@ def main(args):
     else: 
         device = DEVICE
     print("Device" , device)
-    
+
     # network to use
     model=eval(f"{MODEL}()")
     model_output_len = model.output_len # another way to obtain the output of the model https://github.com/biodlab/RODAN/blob/029f7d5eb31b11b53537f13164bfedee0c0786e4/model.py#L317
@@ -48,7 +48,7 @@ def main(args):
     dataloader_val = DataLoader(dataset_val, batch_size=BATCH_SIZE, shuffle=False)
 
     # Callbacks
-    csv_logger=CSVLogger(list_vars=["train_loss","val_loss"], out_file=OUTFILE_TRAIN_LOGGER, overwrite=False)
+    csv_logger=CSVLogger(list_vars=["epoch","train_loss","val_loss"], out_file=OUTFILE_TRAIN_LOGGER, overwrite=True)
 
     # Trainer
     trainer=Trainer(
