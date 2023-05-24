@@ -4,6 +4,9 @@ import torch
 from typing import Union
 from pathlib import Path
 
+# TODO: include a general save for continue training
+#   https://pytorch.org/tutorials/beginner/saving_loading_models.html#load
+
 class ModelCheckpoint:
     # FIXME: check how to use this: "epoch{epoch}-val_loss{val_loss:.2f}" in the call function
     def __init__(self, dirpath: Union[str,Path], filename: str = None ):
@@ -21,7 +24,7 @@ class ModelCheckpoint:
 
         if current_loss < best_loss:
             val_loss = current_loss
-            filename = f"{name_model}-epoch{epoch}"
+            filename = f"{name_model}-epoch{epoch}.pt"
             path_save = self.dirsave.joinpath(filename)
             print(f"saving model for epoch {epoch}")
             torch.save(model.state_dict(), path_save)

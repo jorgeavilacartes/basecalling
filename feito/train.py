@@ -70,13 +70,16 @@ if __name__=="__main__":
     
     # Command line options
     parser = argparse.ArgumentParser()
+    # datasets
     parser.add_argument("--path-train", help="Path to hdf5 file with training dataset", type=str, dest="path_train")
     parser.add_argument("--path-val", help="Path to hdf5 file with validation dataset", type=str, dest="path_validation")
     parser.add_argument("--epochs", help="Number of epochs the model will be trained", type=int, dest="epochs", default=5)
     parser.add_argument("--batch-size", help="Number of elements in each batch", type=int, dest="batch_size", default=16)
+    # training
     parser.add_argument("--model", help="Name of the model. Options: 'SimpleNet', 'Rodan'", type=str, dest="model", default="SimpleNet")
-    parser.add_argument("--outfile-train-logger", help="File to store training and validation loss per epoch", type=str, dest="outfile_train_logger", default="output/training/metrics.csv")
     parser.add_argument("--device", help="cpu or gpu", type=str, dest="device", default=None)
+    # callbacks
+    parser.add_argument("--outfile-train-logger", help="File to store training and validation loss per epoch", type=str, dest="outfile_train_logger", default="output/training/metrics.csv")
     parser.add_argument("--dirpath-checkpoint", help="directory where best weights will be saved", type=str, dest="dirpath_checkpoint", default="output/training/checkpoints")
     args = parser.parse_args()
     
