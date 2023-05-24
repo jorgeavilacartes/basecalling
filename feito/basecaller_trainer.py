@@ -18,17 +18,29 @@ class BasecallerTrainer:
         self.criterion=criterion
         self.callbacks=callbacks
 
+        # for callbacks 
+        
+
     def fit(self, epochs):
+        # track best loss validation
+        best_loss = float("inf")
+
         for t in range(epochs):
             epoch=t+1
-            train_loss = self.train_one_epoch(epoch)
-            val_loss   = self.validate_one_epoch(epoch)
+            train_loss = self.train_one_epoch(epoch)    # returns a float
+            val_loss   = self.validate_one_epoch(epoch) # returns a float
+            print("Validation Loss", val_loss)
 
             # callbacks
             for callback in self.callbacks:
-                print(f"calling callback {callback.__class__.__name__}")
-                callback()
-
+                
+                if callback.__class__.__name__ == "CSVLogger":
+                    print(f"calling callback {callback.__class__.__name__}")
+                    callback()
+                elif callback.__class__.__name__ == "ModelCheckpoint":
+                    print(f"calling callback {callback.__class__.__name__}")
+                    best_loss = callback(model=self.model, current_loss=val_loss, best_loss=best_loss, epoch=epoch)
+        
         print("Done!")
 
 
@@ -101,7 +113,7 @@ class BasecallerTrainer:
                     # compute loss function for the batch
                     loss = self.validate_one_batch(batch)
                     losses.append(loss.item())        
-
+                    losses = [loss for loss in losses if loss < float("inf")] # FIXME: remove this, it's just to try ModelCheckpoint
                     progress_bar.set_postfix(loss='%.4f' % loss)
                     progress_bar.update(1)
         

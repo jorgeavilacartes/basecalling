@@ -16,7 +16,6 @@ python feito/train.py --path-train data/subsample_train.hdf5 --path-val data/sub
 with RODAN's dataset
 ```bash
 python feito/train.py --path-train data/RODAN/train/rna-train.hdf5 --path-val data/RODAN/train/rna-valid.hdf5 --model Rodan --epochs 5 --batch-size 64 --device cuda
-
 ```
 
 **Path to datasets in the server** compbio

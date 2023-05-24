@@ -12,8 +12,8 @@ from torch.utils.data import DataLoader # load batches to the network
 from basecaller_trainer import BasecallerTrainer as Trainer
 from models import SimpleNet, Rodan
 from loss_functions import ctc_label_smoothing_loss
-from dataloader import DatasetONT
-from callbacks import CSVLogger
+from dataloaders.dataloader import DatasetONT
+from callbacks import CSVLogger, ModelCheckpoint
 # ---- 
 
 def main(args):
@@ -26,6 +26,7 @@ def main(args):
     MODEL=args.model
     OUTFILE_TRAIN_LOGGER=args.outfile_train_logger
     DEVICE=args.device 
+    DIRPATH_CHECKPOINT=args.dirpath_checkpoint
     print(PATH_TRAIN, PATH_VALIDATION, EPOCHS, BATCH_SIZE, MODEL, OUTFILE_TRAIN_LOGGER, DEVICE)
 
     if DEVICE is None:
@@ -49,6 +50,7 @@ def main(args):
 
     # Callbacks
     csv_logger=CSVLogger(list_vars=["epoch","train_loss","val_loss"], out_file=OUTFILE_TRAIN_LOGGER, overwrite=True)
+    model_checkpoint = ModelCheckpoint(DIRPATH_CHECKPOINT)
 
     # Trainer
     trainer=Trainer(
@@ -58,7 +60,7 @@ def main(args):
         validation_loader=dataloader_val,
         criterion=loss_fn,
         optimizer=optimizer,
-        callbacks=[csv_logger]
+        callbacks=[csv_logger, model_checkpoint]
     )
 
     # fit the model
@@ -75,6 +77,7 @@ if __name__=="__main__":
     parser.add_argument("--model", help="Name of the model. Options: 'SimpleNet', 'Rodan'", type=str, dest="model", default="SimpleNet")
     parser.add_argument("--outfile-train-logger", help="File to store training and validation loss per epoch", type=str, dest="outfile_train_logger", default="output/training/metrics.csv")
     parser.add_argument("--device", help="cpu or gpu", type=str, dest="device", default=None)
+    parser.add_argument("--dirpath-checkpoint", help="directory where best weights will be saved", type=str, dest="dirpath_checkpoint", default="output/training/checkpoints")
     args = parser.parse_args()
     
     main(args)
