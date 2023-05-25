@@ -19,9 +19,6 @@ class BasecallerTrainer:
         self.criterion=criterion
         self.callbacks=callbacks
 
-        # for callbacks 
-        
-
     def fit(self, epochs):
         # track best loss validation
         best_loss = float("inf")
@@ -44,8 +41,6 @@ class BasecallerTrainer:
         
         print("Done!")
 
-
-
     # Training
     def train_one_batch(self, batch):
         self.optimizer.zero_grad()
@@ -54,9 +49,9 @@ class BasecallerTrainer:
         # Compute prediction error
         preds  = self.model(X)
         # output_len = [preds.shape[0] for _ in range(preds.shape[1])]
-        losses = self.criterion(preds, y, output_len, target_len)
+        loss = self.criterion(preds, y, output_len, target_len)
 
-        if losses.item() == float("inf"):
+        if loss.item() == float("inf"):
             # print(torch.nn.CTCLoss(reduction="none")(preds, y, output_len, target_len))
             print(X.shape, preds.shape, y.shape, output_len, target_len)
             print(y)
@@ -65,14 +60,16 @@ class BasecallerTrainer:
 
         # Backpropagation
         self.optimizer.zero_grad()
-        losses.backward()
+        loss.backward()
         self.optimizer.step()
         
-        return losses
+        return loss
 
     def train_one_epoch(self, epoch: int):
+        #TODO: print average loss function of batches
         self.model.train()
         n_batches=len(self.train_loader)
+        losses = []
 
         with tqdm(total=n_batches, leave=True, ncols=100, bar_format='{l_bar}{bar}| [{elapsed}{postfix}]') as progress_bar:
 
@@ -81,29 +78,28 @@ class BasecallerTrainer:
                 # Description for progress bar
                 progress_bar.set_description(f"Training Epoch: {epoch} | Batch: {n_batch+1}/{n_batches}")
 
+                # compute loss for the batch
+                loss=self.train_one_batch(batch)
+                losses.append(loss.item())
 
-                losses=self.train_one_batch(batch)
-
-                progress_bar.set_postfix(loss='%.4f' % losses)
+                # show current average loss
+                current_avg_loss = torch.Tensor(losses).mean().item()
+                progress_bar.set_postfix(train_loss='%.4f' % current_avg_loss)
                 progress_bar.update(1)
 
-            # TODO: add callbacks
-        
-        return losses.item()
+        return current_avg_loss
     
     # Validation
     def validate_one_batch(self, batch):
-        # TODO: validate one batch
         # https://github.com/nanoporetech/bonito/blob/655feea4bca17feb77957c7f8be5077502292bcf/bonito/training.py#L185
         self.model.eval()
         X, y, output_len, target_len = (x.to(self.device) for x in batch)
         preds  = self.model(X)
-        losses = self.criterion(preds, y, output_len, target_len)
+        loss = self.criterion(preds, y, output_len, target_len)
         
-        return losses  
+        return loss  
         
     def validate_one_epoch(self, epoch):
-        # TODO: validate epoch
         # https://github.com/nanoporetech/bonito/blob/655feea4bca17feb77957c7f8be5077502292bcf/bonito/training.py#L206
         self.model.eval()
         n_batches=len(self.validation_loader)
@@ -121,9 +117,11 @@ class BasecallerTrainer:
 
                     # compute loss function for the batch
                     loss = self.validate_one_batch(batch)
-                    losses.append(loss.item())        
-                    # losses = [loss for loss in losses if loss < float("inf")] # FIXME: remove this, it's just to try ModelCheckpoint
-                    progress_bar.set_postfix(loss='%.4f' % loss)
+                    losses.append(loss.item())
+                    
+                    # show current average loss during training
+                    current_avg_loss = torch.Tensor(losses).mean().item()
+                    progress_bar.set_postfix(val_loss='%.4f' % current_avg_loss)
                     progress_bar.update(1)
         
         return torch.Tensor(losses).mean().item() 

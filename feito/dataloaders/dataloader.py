@@ -8,7 +8,7 @@ from torch.utils.data import Dataset
 
 class DatasetONT(Dataset):
     "Load a single sample for training/evaluating the network"
-    
+    # TODO: remove output_network_len, it will be computed in the Trainer class
     def __init__(self, recfile: Union[str,Path], output_network_len: int):
         """
         Args:

@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader # load batches to the network
 from basecaller_trainer import BasecallerTrainer as Trainer
 from models import SimpleNet, Rodan
 from loss_functions import ctc_label_smoothing_loss
-from dataloaders.dataloader import DatasetONT
+from dataloaders import DatasetONT
 from callbacks import CSVLogger, ModelCheckpoint
 # ----
 
@@ -59,7 +59,7 @@ def main(args):
 
     # Trainer
     trainer=Trainer(
-        model=SimpleNet(),
+        model=model,
         device=device,
         train_loader=dataloader_train,
         validation_loader=dataloader_val,
