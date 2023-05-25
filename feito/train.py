@@ -28,6 +28,7 @@ def main(args):
     DEVICE=args.device 
     DIRPATH_CHECKPOINT=args.dirpath_checkpoint
     print(PATH_TRAIN, PATH_VALIDATION, EPOCHS, BATCH_SIZE, MODEL, OUTFILE_TRAIN_LOGGER, DEVICE)
+    # logging.info()
 
     if DEVICE is None:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -45,8 +46,8 @@ def main(args):
     dataset_train = DatasetONT(recfile=PATH_TRAIN, output_network_len=model_output_len)
     dataset_val   = DatasetONT(recfile=PATH_VALIDATION, output_network_len=model_output_len)
 
-    dataloader_train = DataLoader(dataset_train, batch_size=BATCH_SIZE, shuffle=True)
-    dataloader_val = DataLoader(dataset_val, batch_size=BATCH_SIZE, shuffle=False)
+    dataloader_train = DataLoader(dataset_train, batch_size=BATCH_SIZE, shuffle=True, num_workers=4)
+    dataloader_val = DataLoader(dataset_val, batch_size=BATCH_SIZE, shuffle=False, num_workers=4)
 
     # Callbacks
     csv_logger=CSVLogger(list_vars=["epoch","train_loss","val_loss"], out_file=OUTFILE_TRAIN_LOGGER, overwrite=True)

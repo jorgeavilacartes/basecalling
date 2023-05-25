@@ -41,9 +41,12 @@ class DatasetONT(Dataset):
         # include channel to signal [Channel, Signal], and load data as Tensor
         signals = torch.from_numpy(np.expand_dims(signal,axis=0))
         labels = torch.from_numpy(label)
+        # print("labels from data loader", type(labels), labels)
 
         # define target and input lengths of the loss function
-        target_lens = torch.from_numpy(np.array(self.metadata["label_len"])) 
+        target_lens = torch.from_numpy( np.array(len(np.trim_zeros(label))) ) # with numpy #TODO: check how to do this with pytorch
+        
+        # target_lens = torch.from_numpy(np.array(self.metadata["label_len"])) 
         input_lens = torch.from_numpy(np.array(self.metadata["output_network_len"]))
        
         return signals, labels, input_lens, target_lens

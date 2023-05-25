@@ -1,4 +1,5 @@
 # Trainer class was inspired from https://github.com/nanoporetech/bonito/blob/master/bonito/training.py
+import sys
 import torch
 from tqdm import tqdm
 from typing import Optional, Callable, List
@@ -52,7 +53,15 @@ class BasecallerTrainer:
 
         # Compute prediction error
         preds  = self.model(X)
+        # output_len = [preds.shape[0] for _ in range(preds.shape[1])]
         losses = self.criterion(preds, y, output_len, target_len)
+
+        if losses.item() == float("inf"):
+            # print(torch.nn.CTCLoss(reduction="none")(preds, y, output_len, target_len))
+            print(X.shape, preds.shape, y.shape, output_len, target_len)
+            print(y)
+            print(y[0])
+            sys.exit()
 
         # Backpropagation
         self.optimizer.zero_grad()
@@ -113,7 +122,7 @@ class BasecallerTrainer:
                     # compute loss function for the batch
                     loss = self.validate_one_batch(batch)
                     losses.append(loss.item())        
-                    losses = [loss for loss in losses if loss < float("inf")] # FIXME: remove this, it's just to try ModelCheckpoint
+                    # losses = [loss for loss in losses if loss < float("inf")] # FIXME: remove this, it's just to try ModelCheckpoint
                     progress_bar.set_postfix(loss='%.4f' % loss)
                     progress_bar.update(1)
         
