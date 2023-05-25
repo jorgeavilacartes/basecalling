@@ -64,7 +64,7 @@ To map the output of the model to an RNA sequence, use beam search to decode the
 To compare the basecalled read against the ground truth read, use Smith Waterman 
 
 **Connect to a GPU in the server**
-
+Avoid the usage of CPU10
 ```bash
 qrsh -l gpu_mem=8G
 ```
@@ -90,9 +90,9 @@ How do they influence the architectures?
 ___
 ___
 # TODO list
-- [ ] Callbacks:
-    - [ ] Checkpoint: save best model
-    - [ ] Early stopping
+- [X] Callbacks:
+    - [X] Checkpoint: save best model
+    - [X] Early stopping
 - [ ] Test model: compute accuracy of basecalled reads
     - [ ] use viterbi (and or beam search) to generate reads from output model
     - [ ] align basecalled read against ground truth with smith waterman
