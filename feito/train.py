@@ -1,6 +1,6 @@
 # primary libraries
 import argparse
-import logging
+import logging # TODO: add loggings
 from pathlib import Path
 
 # torch
@@ -14,21 +14,25 @@ from models import SimpleNet, Rodan
 from loss_functions import ctc_label_smoothing_loss
 from dataloaders.dataloader import DatasetONT
 from callbacks import CSVLogger, ModelCheckpoint
-# ---- 
+# ----
 
 def main(args):
 
-    # get input parameters
+    ## get input parameters
+    # datasets
     PATH_TRAIN=args.path_train
-    PATH_VALIDATION=args.path_validation
+    PATH_VAL=args.path_val
     EPOCHS=args.epochs
     BATCH_SIZE=args.batch_size
+    NUM_WORKERS=args.num_workers
+    # training
     MODEL=args.model
-    OUTFILE_TRAIN_LOGGER=args.outfile_train_logger
     DEVICE=args.device 
+    # callbacks
+    OUTFILE_TRAIN_LOGGER=args.outfile_train_logger   
     DIRPATH_CHECKPOINT=args.dirpath_checkpoint
-    print(PATH_TRAIN, PATH_VALIDATION, EPOCHS, BATCH_SIZE, MODEL, OUTFILE_TRAIN_LOGGER, DEVICE)
-    # logging.info()
+
+    print(PATH_TRAIN, PATH_VAL, EPOCHS, BATCH_SIZE, MODEL, OUTFILE_TRAIN_LOGGER, DEVICE)
 
     if DEVICE is None:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -44,10 +48,10 @@ def main(args):
 
     # dataset
     dataset_train = DatasetONT(recfile=PATH_TRAIN, output_network_len=model_output_len)
-    dataset_val   = DatasetONT(recfile=PATH_VALIDATION, output_network_len=model_output_len)
+    dataset_val   = DatasetONT(recfile=PATH_VAL, output_network_len=model_output_len)
 
-    dataloader_train = DataLoader(dataset_train, batch_size=BATCH_SIZE, shuffle=True, num_workers=4)
-    dataloader_val = DataLoader(dataset_val, batch_size=BATCH_SIZE, shuffle=False, num_workers=4)
+    dataloader_train = DataLoader(dataset_train, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
+    dataloader_val = DataLoader(dataset_val, batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS)
 
     # Callbacks
     csv_logger=CSVLogger(list_vars=["epoch","train_loss","val_loss"], out_file=OUTFILE_TRAIN_LOGGER, overwrite=True)
@@ -68,20 +72,21 @@ def main(args):
     trainer.fit(epochs=EPOCHS)
 
 if __name__=="__main__":
-    
+
     # Command line options
     parser = argparse.ArgumentParser()
     # datasets
     parser.add_argument("--path-train", help="Path to hdf5 file with training dataset", type=str, dest="path_train")
-    parser.add_argument("--path-val", help="Path to hdf5 file with validation dataset", type=str, dest="path_validation")
-    parser.add_argument("--epochs", help="Number of epochs the model will be trained", type=int, dest="epochs", default=5)
-    parser.add_argument("--batch-size", help="Number of elements in each batch", type=int, dest="batch_size", default=16)
+    parser.add_argument("--path-val", help="Path to hdf5 file with validation dataset", type=str, dest="path_val")
+    parser.add_argument("--epochs", help="Number of epochs the model will be trained. Default 5", type=int, dest="epochs", default=5)
+    parser.add_argument("--batch-size", help="Number of elements in each batch. Default 16", type=int, dest="batch_size", default=16)
+    parser.add_argument("--num-workers", help="Number of workers to be used by Pytorch DataLoader class. Default 4", type=int, dest="num_workers", default=4)
     # training
-    parser.add_argument("--model", help="Name of the model. Options: 'SimpleNet', 'Rodan'", type=str, dest="model", default="SimpleNet")
-    parser.add_argument("--device", help="cpu or gpu", type=str, dest="device", default=None)
+    parser.add_argument("--model", help="Name of the model. Options: 'SimpleNet', 'Rodan'. Default 'SimpleNet'", type=str, dest="model", default="SimpleNet")
+    parser.add_argument("--device", help="Options: 'cpu' or 'cuda'. Default None, in this case it will try to use 'cuda' if available.", type=str, dest="device", default=None)
     # callbacks
-    parser.add_argument("--outfile-train-logger", help="File to store training and validation loss per epoch", type=str, dest="outfile_train_logger", default="output/training/metrics.csv")
-    parser.add_argument("--dirpath-checkpoint", help="directory where best weights will be saved", type=str, dest="dirpath_checkpoint", default="output/training/checkpoints")
+    parser.add_argument("--outfile-train-logger", help="File to store training and validation loss per epoch. Default 'output/training/metrics.csv'", type=str, dest="outfile_train_logger", default="output/training/metrics.csv")
+    parser.add_argument("--dirpath-checkpoint", help="directory where best weights will be saved. Default 'output/training/checkpoints'", type=str, dest="dirpath_checkpoint", default="output/training/checkpoints")
     args = parser.parse_args()
     
     main(args)

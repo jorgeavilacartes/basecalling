@@ -98,4 +98,4 @@ ___
     - [ ] align basecalled read against ground truth with smith waterman
 - [ ] Add viterbi and smith waterman to validation step
 - [ ] Create own datasets from raw signals and a reference
-- [ ] New architecture for RNA, consider sampling rate  
+- [ ] New architecture for RNA, consider sampling rate
