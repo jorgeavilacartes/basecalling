@@ -15,8 +15,9 @@ dependencies:
   - pytorch-cuda=11.7
   - cudatoolkit=11.7
   - tqdm
-  - parasail-python # Smith-Waterman
   - pyyaml
+  - pip
   - pip: 
     - ont-fast5-api
     - fast-ctc-decode # beam search and viterbi search
+    - parasail==1.3.4 # Smith-Waterman | same version than bonito
