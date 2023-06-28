@@ -13,6 +13,7 @@ from basecaller_tester import BasecallerTester as Tester
 from models import SimpleNet, Rodan
 from dataloaders.dataloader import DatasetONT
 from callbacks import CSVLogger, ModelCheckpoint
+
 # ---- 
 
 def main(args):
@@ -46,9 +47,9 @@ def main(args):
         test_loader=dataloader_test,
     )
 
-    # inference
-    tester()
-
+    accuracy = tester(return_basecalled_signals=False)
+    
+    return accuracy
 
 if __name__=="__main__":
     
@@ -61,7 +62,10 @@ if __name__=="__main__":
     parser.add_argument("--model", help="Name of the model. Options: 'SimpleNet', 'Rodan'", type=str, dest="model", default="SimpleNet")
     parser.add_argument("--device", help="cpu or gpu", type=str, dest="device", default=None)
     parser.add_argument("--path-checkpoint", help="path to checkpoint to be used with the model", type=str, dest="path_checkpoint")
+    parser.add_argument("--path-fasta", help="file to save basecalled signals. If not provided only accuracy will be returned", default=None, dest="path_fasta")
+    parser.add_argument("--rna", help="Wheter to use RNA or DNA alphabet. Default: True", default=True, dest="rna")
+    parser.add_argument("--use-viterbi", help="Use Viterbi Search for basecalling, or Beam Search. Default: True", default=True, dest="use_viterbi")
     args = parser.parse_args()
     
-    main(args)
-
+    accuracy = main(args)
+    print(accuracy)
