@@ -18,6 +18,17 @@ with RODAN's dataset
 python feito/train.py --path-train data/RODAN/train/rna-train.hdf5 --path-val data/RODAN/train/rna-valid.hdf5 --model Rodan --epochs 5 --batch-size 64 --device cuda
 ```
 
+### Testing
+RODAN with small dataset
+```bash
+python feito/test.py --path-test data/subsample_val.hdf5 --batch-size 16 --model Rodan --device cpu --path-checkpoint output/training/checkpoints/Rodan-epoch5.pt --path-fasta output/test/basecalled_signals.fa --rna true --use-viterbi true
+```
+
+SimpleNet with small dataset
+```bash
+python feito/test.py --path-test data/subsample_val.hdf5 --batch-size 16 --model SimpleNet --device cpu --path-checkpoint output/training/checkpoints/SimpleNet-epoch1.pt --path-fasta output/test/basecalled_signals_SimpleNet.fa --rna true --use-viterbi true
+```
+
 **Path to datasets in the server** compbio
 RODAN's dataset
 - `/extdata/RODAN/train/rna-train.hdf5`

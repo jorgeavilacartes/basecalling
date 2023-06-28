@@ -1,6 +1,6 @@
 # primary libraries
 import argparse
-import logging
+import logging # TODO: add loggings
 from pathlib import Path
 
 # torch
@@ -23,6 +23,9 @@ def main(args):
     MODEL=args.model
     DEVICE=args.device
     PATH_CHECKPOINT=args.path_checkpoint
+    PATH_FASTA=args.path_fasta
+    RNA=args.rna
+    USE_VITERBI=args.use_viterbi
 
     if DEVICE is None:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -32,19 +35,28 @@ def main(args):
 
     model=eval(f"{MODEL}()")
     model_output_len = model.output_len
+    model.to(device)
 
+
+    # load weights
+    # https://pytorch.org/tutorials/beginner/saving_loading_models.html#load
+    # model.load_state_dict(PATH_CHECKPOINT)
+    if device == "cpu":
+        model.load_state_dict(torch.load(PATH_CHECKPOINT, map_location=torch.device('cpu')))
+    else: 
+        model.load_state_dict(torch.load(PATH_CHECKPOINT))
+    
     # dataset
     dataset_test = DatasetONT(recfile=PATH_TEST, output_network_len=model_output_len)
     dataloader_test = DataLoader(dataset_test, batch_size=BATCH_SIZE, shuffle=True)
     
-    # load weights
-    # https://pytorch.org/tutorials/beginner/saving_loading_models.html#load
-    model.load_state_dict(PATH_CHECKPOINT)
-
     tester=Tester(
         model=model, 
         device=device,
         test_loader=dataloader_test,
+        path_fasta=PATH_FASTA,
+        rna=RNA,
+        use_viterbi=USE_VITERBI
     )
 
     accuracy = tester(return_basecalled_signals=False)
@@ -56,15 +68,15 @@ if __name__=="__main__":
     # Command line options
     parser = argparse.ArgumentParser()
     # dataset
-    parser.add_argument("--path-test", help="Path to hdf5 file with training dataset", type=str, dest="path_train")
+    parser.add_argument("--path-test", help="Path to hdf5 file with training dataset", type=str, dest="path_test")
     # testing
     parser.add_argument("--batch-size", help="Number of elements in each batch", type=int, dest="batch_size", default=16)
     parser.add_argument("--model", help="Name of the model. Options: 'SimpleNet', 'Rodan'", type=str, dest="model", default="SimpleNet")
     parser.add_argument("--device", help="cpu or gpu", type=str, dest="device", default=None)
     parser.add_argument("--path-checkpoint", help="path to checkpoint to be used with the model", type=str, dest="path_checkpoint")
-    parser.add_argument("--path-fasta", help="file to save basecalled signals. If not provided only accuracy will be returned", default=None, dest="path_fasta")
-    parser.add_argument("--rna", help="Wheter to use RNA or DNA alphabet. Default: True", default=True, dest="rna")
-    parser.add_argument("--use-viterbi", help="Use Viterbi Search for basecalling, or Beam Search. Default: True", default=True, dest="use_viterbi")
+    parser.add_argument("--path-fasta", help="file to save basecalled signals. If not provided only accuracy will be returned", default=None, type=str, dest="path_fasta")
+    parser.add_argument("--rna", help="Wheter to use RNA or DNA alphabet. Default: True", type=bool, default=True, dest="rna")
+    parser.add_argument("--use-viterbi", help="Use Viterbi Search for basecalling, or Beam Search. Default: True", type=bool, default=True, dest="use_viterbi")
     args = parser.parse_args()
     
     accuracy = main(args)

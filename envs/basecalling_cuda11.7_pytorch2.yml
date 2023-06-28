@@ -20,4 +20,4 @@ dependencies:
   - pip: 
     - ont-fast5-api
     - fast-ctc-decode # beam search and viterbi search
-    - parasail==1.3.4 # Smith-Waterman | same version than bonito
+    - parasail==1.3.4 # Smith-Waterman | same version used in bonito
