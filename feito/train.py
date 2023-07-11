@@ -1,5 +1,4 @@
-#!/usr/bin/bash python3
-
+#!/usr/bin/bash
 # primary libraries
 import argparse
 from rich_argparse import RichHelpFormatter
@@ -80,7 +79,6 @@ if __name__=="__main__":
     # Command line options
     parser = argparse.ArgumentParser(
         description="Train basecaller", 
-        prog="train", 
         formatter_class=RichHelpFormatter
     )
     # datasets

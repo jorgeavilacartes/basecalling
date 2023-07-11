@@ -1,4 +1,4 @@
-#!/usr/bin/bash python3
+#!/usr/bin/bash
 
 # primary libraries
 import argparse
@@ -46,9 +46,10 @@ def main(args):
     # load weights
     # https://pytorch.org/tutorials/beginner/saving_loading_models.html#load
     if device == "cpu":
-        model.load_state_dict(torch.load(PATH_CHECKPOINT, map_location=torch.device('cpu')))
+        model.load_state_dict(torch.load(PATH_CHECKPOINT, map_location=torch.device("cpu")))
     else: 
         model.load_state_dict(torch.load(PATH_CHECKPOINT))
+    model.eval()
     
     # dataset
     dataset_basecalling = DatasetBasecalling(
@@ -81,7 +82,6 @@ if __name__=="__main__":
     # Command line options
     parser = argparse.ArgumentParser(
         description="Basecall raw signals",
-        prog="basecall", 
         formatter_class=RichHelpFormatter
     )
     # dataset

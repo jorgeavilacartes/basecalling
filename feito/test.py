@@ -1,4 +1,4 @@
-#!/usr/bin/bash python3
+#!/usr/bin/bash
 
 # primary libraries
 import argparse
@@ -49,6 +49,7 @@ def main(args):
         model.load_state_dict(torch.load(PATH_CHECKPOINT, map_location=torch.device('cpu')))
     else: 
         model.load_state_dict(torch.load(PATH_CHECKPOINT))
+    model.eval()
     
     # dataset
     dataset_test = DatasetONT(recfile=PATH_TEST, output_network_len=model_output_len)
@@ -72,7 +73,6 @@ if __name__=="__main__":
     # Command line options
     parser = argparse.ArgumentParser(
         description="Test basecaller", 
-        prog="test", 
         formatter_class=RichHelpFormatter
     )
     # dataset
