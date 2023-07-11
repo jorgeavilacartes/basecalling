@@ -12,8 +12,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader # load batches to the network
 
 # feito 
-from basecaller import Basecaller
-from basecaller_tester import BasecallerTester as Tester
+from api import Basecaller
 from models import SimpleNet, Rodan
 from dataloaders import DatasetBasecalling
 

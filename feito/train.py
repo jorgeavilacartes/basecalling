@@ -12,11 +12,12 @@ import torch.nn as nn
 from torch.utils.data import DataLoader # load batches to the network
 
 # feito 
-from basecaller_trainer import BasecallerTrainer as Trainer
+from api import Trainer
 from models import SimpleNet, Rodan
 from loss_functions import ctc_label_smoothing_loss
 from dataloaders import DatasetONT
 from callbacks import CSVLogger, ModelCheckpoint
+
 # ----
 
 def main(args):
