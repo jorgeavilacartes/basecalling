@@ -30,6 +30,7 @@ def main(args):
     RNA=args.rna
     USE_VITERBI=args.use_viterbi
     PATH_SAVE_INDEX=args.path_save_index
+    NUM_WORKERS=args.num_workers
 
     if DEVICE is None:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -51,11 +52,17 @@ def main(args):
     
     # dataset
     dataset_basecalling = DatasetBasecalling(
-    path_fast5=PATH_FAST5,
-    path_save_index=PATH_SAVE_INDEX,
-    len_subsignals=LEN_SUBSIGNALS
-    )
-    basecalling_dataloader = DataLoader(dataset_basecalling, batch_size=BATCH_SIZE, shuffle=False)
+        path_fast5=PATH_FAST5,
+        path_save_index=PATH_SAVE_INDEX,
+        len_subsignals=LEN_SUBSIGNALS
+        )
+    
+    basecalling_dataloader = DataLoader(
+        dataset_basecalling, 
+        batch_size=BATCH_SIZE, 
+        shuffle=False, 
+        num_workers=NUM_WORKERS
+        )
     
     basecaller = Basecaller(
         model=model, device=device, 

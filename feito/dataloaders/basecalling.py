@@ -40,6 +40,8 @@ class DatasetBasecalling(Dataset):
         # create index (read, portion)
         self.index = self.create_index()
 
+        # check if path_fasta exists
+        assert not Path(path_save_index).is_file(), f"path_save_index already exists: {path_save_index}"
         Path(path_save_index).parent.mkdir(parents=True, exist_ok=True)
         pd.DataFrame(self.index).to_csv(path_save_index, sep="\t")
 

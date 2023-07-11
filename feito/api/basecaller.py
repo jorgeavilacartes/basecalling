@@ -39,7 +39,8 @@ class Basecaller:
         self.alphabet    = "NACGU" if rna else "NACGT"
         self.use_viterbi = use_viterbi
         self.search_algo = viterbi_search if use_viterbi else beam_search
-
+        
+        assert not Path(self.path_fasta).is_file(), f"path_fasta exists: {path_fasta}"
         Path(self.path_fasta).parent.mkdir(exist_ok=True, parents=True)
 
     def __call__(self,):
@@ -69,11 +70,12 @@ class Basecaller:
 
         return basecalled_signals
 
+    @torch.no_grad()
     def basecall_one_batch(self, X):
         "Return basecalled signals in the chosen alphabet"
         preds  = self.model(X) # preds shape: (len-signal, item, size-alphabet)
         basecalled_signals = list(
-            self.signal_to_read(signal=preds[:,item,:].detach().numpy(), use_viterbi=self.use_viterbi, rna=self.rna) 
+            self.signal_to_read(signal=preds[:,item,:].detach().numpy(), use_viterbi=self.use_viterbi) 
             for item in range(preds.shape[1])
             )
 
@@ -86,7 +88,7 @@ class Basecaller:
         
         return "".join([self.int2char[i] for i in label if i > 0])
 
-    def signal_to_read(self, signal, use_viterbi: bool = True, rna: bool = True):
+    def signal_to_read(self, signal, use_viterbi: bool = True):
         "Apply viterbi or beam search to a signal"
         
         if use_viterbi is True:
