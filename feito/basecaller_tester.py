@@ -1,3 +1,10 @@
+"""
+This class assumes that for each signal we have the ground truth,
+so no transcriptome is needed here. It must be used before hand 
+to create the test dataset (same format than training and validation sets).
+
+Input datasets are in hdf5 format
+"""
 # builtin libraries
 import re
 import logging

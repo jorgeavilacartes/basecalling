@@ -25,9 +25,3 @@ def ctc_label_smoothing_loss(log_probs, targets, lengths, weights):
     loss = torch.nn.functional.ctc_loss(log_probs.to(torch.float32), targets, log_probs_lengths, lengths, reduction='mean', zero_infinity=True)
     label_smoothing_loss = -((log_probs * weights.to(log_probs.device)).mean())
     return {'loss': loss + label_smoothing_loss, 'ctc_loss': loss, 'label_smooth_loss': label_smoothing_loss}
-
-def med_mad(x, factor=1.4826):
-    "preprocessing"
-    med = np.median(x)
-    mad = np.median(np.absolute(x - med)) * factor
-    return med, mad

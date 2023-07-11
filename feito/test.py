@@ -1,5 +1,8 @@
+#!/usr/bin/bash python3
+
 # primary libraries
 import argparse
+from rich_argparse import RichHelpFormatter
 import logging # TODO: add loggings
 from pathlib import Path
 
@@ -11,7 +14,8 @@ from torch.utils.data import DataLoader # load batches to the network
 # feito 
 from basecaller_tester import BasecallerTester as Tester
 from models import SimpleNet, Rodan
-from dataloaders.dataloader import DatasetONT
+# from feito.dataloaders.training import DatasetONT
+from dataloaders import DatasetONT
 from callbacks import CSVLogger, ModelCheckpoint
 
 # ---- 
@@ -26,6 +30,7 @@ def main(args):
     PATH_FASTA=args.path_fasta
     RNA=args.rna
     USE_VITERBI=args.use_viterbi
+    NUM_WORKERS=args.num_workers
 
     if DEVICE is None:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -48,7 +53,7 @@ def main(args):
     
     # dataset
     dataset_test = DatasetONT(recfile=PATH_TEST, output_network_len=model_output_len)
-    dataloader_test = DataLoader(dataset_test, batch_size=BATCH_SIZE, shuffle=True)
+    dataloader_test = DataLoader(dataset_test, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
     
     tester=Tester(
         model=model, 
@@ -66,11 +71,16 @@ def main(args):
 if __name__=="__main__":
     
     # Command line options
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description="Test basecaller", 
+        prog="test", 
+        formatter_class=RichHelpFormatter
+    )
     # dataset
     parser.add_argument("--path-test", help="Path to hdf5 file with training dataset", type=str, dest="path_test")
+    parser.add_argument("--num-workers", help="Number of workers to be used by Pytorch DataLoader class. Default 4", type=int, dest="num_workers", default=4)
     # testing
-    parser.add_argument("--batch-size", help="Number of elements in each batch", type=int, dest="batch_size", default=16)
+    parser.add_argument("--batch-size", help="Number of elements in each batch. Default 16", type=int, dest="batch_size", default=16)
     parser.add_argument("--model", help="Name of the model. Options: 'SimpleNet', 'Rodan'", type=str, dest="model", default="SimpleNet")
     parser.add_argument("--device", help="cpu or gpu", type=str, dest="device", default=None)
     parser.add_argument("--path-checkpoint", help="path to checkpoint to be used with the model", type=str, dest="path_checkpoint")

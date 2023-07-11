@@ -19,6 +19,9 @@ python feito/train.py --path-train data/RODAN/train/rna-train.hdf5 --path-val da
 ```
 
 ### Testing
+- This test assumes that testing dataset is in the same format than training and validations (`hdf5`` format), i.e. you have split reads with their ground truths.
+- For experimental purposes use `/extdata/RODAN/train/rna-test.hdf5`.
+
 RODAN with small dataset
 ```bash
 python feito/test.py --path-test data/subsample_val.hdf5 --batch-size 16 --model Rodan --device cpu --path-checkpoint output/training/checkpoints/Rodan-epoch5.pt --path-fasta output/test/basecalled_signals.fa --rna true --use-viterbi true
@@ -28,6 +31,15 @@ SimpleNet with small dataset
 ```bash
 python feito/test.py --path-test data/subsample_val.hdf5 --batch-size 16 --model SimpleNet --device cpu --path-checkpoint output/training/checkpoints/SimpleNet-epoch1.pt --path-fasta output/test/basecalled_signals_SimpleNet.fa --rna true --use-viterbi true
 ```
+
+### **Basecalling** 
+- This assumes you have a trained model, and a set of reads in fast5 format. 
+- Reads will be split by the dataloader in non-overlapping signals with length equal to the input of the model (this must be provided as parameter, but it shouldn't (FIXME:)), and an index will be created, to refer each portion of the basecalled signal to its portion of read.
+
+```bash
+python feito/feito.py --path-fast5 data/RODAN/test/mouse-dataset/0 --len-subsignals 4096 --path-save-index output/basecalling/simplenet-index.csv --batch-size 16 --model SimpleNet --device cpu --path-checkpoint output/training/checkpoints/SimpleNet-epoch1.pt --path-fasta output/basecalling/simplenet-basecalled_reads.fa 
+```
+
 
 **Path to datasets in the server** compbio
 RODAN's dataset
@@ -104,9 +116,8 @@ ___
 - [X] Callbacks:
     - [X] Checkpoint: save best model
     - [X] Early stopping
-- [ ] Test model: compute accuracy of basecalled reads
-    - [ ] use viterbi (and or beam search) to generate reads from output model
-    - [ ] align basecalled read against ground truth with smith waterman
-- [ ] Add viterbi and smith waterman to validation step
+- [X] Test model: compute accuracy of basecalled reads
+    - [X] use viterbi (and or beam search) to generate reads from output model
+    - [X] align basecalled read against ground truth with smith waterman
 - [ ] Create own datasets from raw signals and a reference
 - [ ] New architecture for RNA, consider sampling rate

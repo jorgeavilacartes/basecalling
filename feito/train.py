@@ -1,5 +1,8 @@
+#!/usr/bin/bash python3
+
 # primary libraries
 import argparse
+from rich_argparse import RichHelpFormatter
 import logging # TODO: add loggings
 from pathlib import Path
 
@@ -74,7 +77,11 @@ def main(args):
 if __name__=="__main__":
 
     # Command line options
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description="Train basecaller", 
+        prog="train", 
+        formatter_class=RichHelpFormatter
+    )
     # datasets
     parser.add_argument("--path-train", help="Path to hdf5 file with training dataset", type=str, dest="path_train")
     parser.add_argument("--path-val", help="Path to hdf5 file with validation dataset", type=str, dest="path_val")
