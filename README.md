@@ -13,9 +13,13 @@ for testing with small datasets
 python feito/train.py --path-train data/subsample_train.hdf5 --path-val data/subsample_val.hdf5 --model Rodan --epochs 5 --batch-size 16
 ```
 
+```bash
+python3 feito/train.py --path-train data/RODAN/train/rna-train.hdf5 --path-val data/RODAN/train/rna-valid.hdf5 --epochs 30 --batch-size 16 --num-workers 4 --model SimpleNet --device cuda
+```
+
 with RODAN's dataset
 ```bash
-python feito/train.py --path-train data/RODAN/train/rna-train.hdf5 --path-val data/RODAN/train/rna-valid.hdf5 --model Rodan --epochs 5 --batch-size 64 --device cuda
+python feito/train.py --path-train data/RODAN/train/rna-train.hdf5 --path-val data/RODAN/train/rna-valid.hdf5 --model Rodan --epochs 20 --batch-size 64 --device cuda
 ```
 
 ### Testing
@@ -111,6 +115,47 @@ How do they influence the architectures?
 
 
 ___
+
+# Mapping reads with minimap2
+
+### OPTIONAL
+Install minimap2 in a conda environment
+```bash
+micromamba env create -n map-reads -f envs/minimap2.yml
+micromamba activate map-reads
+```
+
+map reads to transcriptome
+```bash
+transcriptome="/projects5/basecalling-jorge/basecalling/data/RODAN/test/transcriptomes/mouse_reference.fasta"
+reads="/projects5/basecalling-jorge/basecalling/output-old/basecalling/simplenet-basecalled_reads.fa"
+samfile="output-old/basecalling/mapped_reads.sam"
+minimap2 --secondary=no -ax map-ont -t 32 --cs $transcriptome $reads > $outputsam
+```
+
+### `samtools`
+
+sort mapped reads 
+```bash
+bamfile="output-old/basecalling/mapped_reads.bam"
+samtools view -bS $samfile | samtools sort > $bamfile
+```
+
+indexing
+```bash
+samtools index $bamfile 
+```
+
+visualize alignment
+```bash
+samtools view $bamfile | less -S
+```
+
+check statistics of mapped/unnmaped reads
+```
+samtools flagstat $bamfile
+```
+
 ___
 # TODO list
 - [X] Callbacks:

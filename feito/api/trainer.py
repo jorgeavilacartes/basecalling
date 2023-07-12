@@ -11,7 +11,7 @@ class BasecallerTrainer:
     "Training and Validation of a model"
 
     def __init__(self, model, device, train_loader, validation_loader, criterion, optimizer, callbacks: _Callbacks):
-        self.model=model.to(device) 
+        self.model=model.to(device)
         self.device=device
         self.train_loader=train_loader
         self.validation_loader=validation_loader

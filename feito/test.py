@@ -2,7 +2,7 @@
 
 # primary libraries
 import argparse
-from rich_argparse import RichHelpFormatter
+# from rich_argparse import RichHelpFormatter
 import logging # TODO: add loggings
 from pathlib import Path
 
@@ -73,7 +73,7 @@ if __name__=="__main__":
     # Command line options
     parser = argparse.ArgumentParser(
         description="Test basecaller", 
-        formatter_class=RichHelpFormatter
+        # formatter_class=RichHelpFormatter
     )
     # dataset
     parser.add_argument("--path-test", help="Path to hdf5 file with training dataset", type=str, dest="path_test")

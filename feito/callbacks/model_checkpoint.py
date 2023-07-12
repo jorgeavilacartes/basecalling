@@ -5,6 +5,7 @@ from typing import Union
 from pathlib import Path
 
 # TODO: include a general save to continue training
+# optimizer
 #   https://pytorch.org/tutorials/beginner/saving_loading_models.html#load
 
 class ModelCheckpoint:
