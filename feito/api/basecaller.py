@@ -1,9 +1,6 @@
 """
-This class assumes that for each signal we have the ground truth,
-so no transcriptome is needed here. It must be used before hand 
-to create the test dataset (same format than training and validation sets).
-
-Input datasets are in hdf5 format
+This class assumes that the input are fast5 files with ONE entire raw read
+Input is a single fast5 file or a directory with many fast5 files.
 """
 # builtin libraries
 import re
@@ -29,7 +26,9 @@ _Path = Union[Path,str]
 class Basecaller:
 
     def __init__(self, model, device, basecalling_loader, 
-                 path_fasta: Optional[_Path] = None, rna: bool = True, use_viterbi = True):
+                 path_fasta: Optional[_Path] = None, rna: bool = True, use_viterbi = True,
+                 return_reads: bool = False
+                 ):
         self.model  = model.to(device) # model with pretrained weigths loaded
         self.device = device
         self.basecalling_loader = basecalling_loader # load signals
@@ -39,7 +38,8 @@ class Basecaller:
         self.alphabet    = "NACGU" if rna else "NACGT"
         self.use_viterbi = use_viterbi
         self.search_algo = viterbi_search if use_viterbi else beam_search
-        
+        self.return_reads = return_reads 
+
         assert not Path(self.path_fasta).is_file(), f"path_fasta exists: {path_fasta}"
         Path(self.path_fasta).parent.mkdir(exist_ok=True, parents=True)
 
@@ -56,7 +56,8 @@ class Basecaller:
                 progress_bar.set_description(f"Evaluating | Batch: {n_batch+1}/{n_batches}")
                 basecalled_signals_batch = self.basecall_one_batch(batch)
                 
-                basecalled_signals.extend(basecalled_signals_batch)
+                if self.return_reads:
+                    basecalled_signals.extend(basecalled_signals_batch)
                 
                 # progress_bar.set_postfix(train_loss='%.4f' % current_avg_loss)
 
@@ -67,8 +68,11 @@ class Basecaller:
                         fp.write(f">{idx}\n")
                         fp.write(read+"\n")
                         idx +=1
-
-        return basecalled_signals
+        
+        if self.return_reads: 
+            return basecalled_signals
+        else:
+            return None
 
     @torch.no_grad()
     def basecall_one_batch(self, X):
