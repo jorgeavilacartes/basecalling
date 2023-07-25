@@ -52,9 +52,12 @@ class Basecaller:
         with tqdm(total=n_batches, leave=True, ncols=100, bar_format='{l_bar}{bar}| [{elapsed}{postfix}]') as progress_bar:
 
             for n_batch, batch in enumerate(self.basecalling_loader):
-
+                X = batch.to(self.device)
+                if n_batch == 0: 
+                    print(X.shape)
+                    print(X)
                 progress_bar.set_description(f"Evaluating | Batch: {n_batch+1}/{n_batches}")
-                basecalled_signals_batch = self.basecall_one_batch(batch)
+                basecalled_signals_batch = self.basecall_one_batch(X)
                 
                 if self.return_reads:
                     basecalled_signals.extend(basecalled_signals_batch)
@@ -78,11 +81,17 @@ class Basecaller:
     def basecall_one_batch(self, X):
         "Return basecalled signals in the chosen alphabet"
         preds  = self.model(X) # preds shape: (len-signal, item, size-alphabet)
-        basecalled_signals = list(
-            self.signal_to_read(signal=preds[:,item,:].detach().numpy(), use_viterbi=self.use_viterbi) 
-            for item in range(preds.shape[1])
-            )
 
+        if self.device == "cpu":
+            basecalled_signals = list(
+                self.signal_to_read(signal=preds[:,item,:].detach().numpy(), use_viterbi=self.use_viterbi) 
+                for item in range(preds.shape[1])
+                )
+        else:
+            basecalled_signals = list(
+                self.signal_to_read(signal=preds[:,item,:].cpu().detach().numpy(), use_viterbi=self.use_viterbi) 
+                for item in range(preds.shape[1])
+                )
         return basecalled_signals
 
     def label_to_alphabet(self, label):

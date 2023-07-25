@@ -6,16 +6,18 @@ import h5py
 import torch
 import pandas as pd 
 
-from typing import Union
+from typing import Union, List
 from pathlib import Path
 from collections import namedtuple
 from torch.utils.data import Dataset
 from .utils import load_signal, split_raw_signal, preprocessing
 from ont_fast5_api.fast5_interface import get_fast5_file
-
+import logging
+logger=logging.getLogger()
+logger.setLevel("INFO")
 
 _Path = Union[str,Path]
-_PathFast5 = Union[_Path,list[_Path]]
+_PathFast5 = Union[_Path,List[_Path]]
 
 Index = namedtuple("Index",["index","path_fast5", "read_id", "subsignal_id","start", "end"])
 
@@ -61,17 +63,24 @@ class DatasetBasecalling(Dataset):
         idx=0
         index = []
         for fast5 in self.path_fast5:
-            raw_signal, read_id, len_signal = load_signal(fast5)
-            split_signal = split_raw_signal(raw_signal, **self.kwargs) # apply (1) trim, (2) preprocessing and (3) padding if needed
-            
-            starts = range(0, len_signal, self.len_subsignals)
+            try:
+                raw_signal, read_id, len_signal = load_signal(fast5)
+                if not len(raw_signal): 
+                    print(fast5, read_id)
+                split_signal = split_raw_signal(raw_signal, **self.kwargs) # apply (1) trim, (2) preprocessing and (3) padding if needed
 
-            for idx_subsignal in range(split_signal.shape[0]):
-                start = starts[idx_subsignal]
-                end = start + self.len_subsignals - 1 
-                index.append(Index(idx, fast5, read_id, idx_subsignal, start, end)) 
-                idx += 1
+                starts = range(0, len_signal, self.len_subsignals)
+                
+                # logger.info(f"read info: {fast5} | {read_id}")
+                # logger.info(f"split signal columns {split_signal.shape[0]}")
 
+                for idx_subsignal in range(split_signal.shape[0]):
+                    start = starts[idx_subsignal]
+                    end = start + self.len_subsignals - 1 
+                    index.append(Index(idx, fast5, read_id, idx_subsignal, start, end)) 
+                    idx += 1
+            except:
+                continue
         return index
 
     def load_subsignal(self, path_fast5, start, end):

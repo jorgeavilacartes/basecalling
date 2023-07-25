@@ -1,0 +1,1 @@
+python feito/basecall.py --path-fast5 data/RODAN/test/mouse-dataset --len-subsignals 4096 --path-index output-rodan/basecalling/mouse-index.csv --batch-size 32 --model Rodan --device cuda --path-checkpoint output-rodan/training/checkpoints/Rodan-epoch29.pt --path-fasta output-rodan/basecalling/mouse-basecalled_reads.fa --path-reads output-rodan/basecalling/mouse-full_reads.fa 

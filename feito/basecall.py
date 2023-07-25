@@ -99,6 +99,7 @@ if __name__=="__main__":
         description="Basecall raw signals",
         formatter_class=RichHelpFormatter
     )
+    # TODO: add choices to some arguments
     # dataset
     parser.add_argument("--path-fast5", help="Path to single file .fast5 or a directory with .fast5 files", type=str, dest="path_fast5")
     parser.add_argument("--len-subsignals", help="input used by the model. Default 4096", type=int, default=4096, dest="len_subsignals")
@@ -108,7 +109,7 @@ if __name__=="__main__":
     
     # basecalling
     parser.add_argument("--model", help="Name of the model. Options: 'SimpleNet', 'Rodan'", type=str, dest="model", default="SimpleNet")
-    parser.add_argument("--device", help="cpu or gpu", type=str, dest="device", default=None)
+    parser.add_argument("--device", help="cpu or cuda", type=str, dest="device", choices= ["cpu","cuda"], default=None)
     parser.add_argument("--path-checkpoint", help="path to checkpoint to be used with the model", type=str, dest="path_checkpoint")
     parser.add_argument("--path-fasta", help="file to save basecalled signals", default="output/basecalling/basecalled_reads.fa", type=str, dest="path_fasta")
     parser.add_argument("--path-reads", help="file to save reconstructed reads", default="output/basecalling/reconstructed_reads.fa", type=str, dest="path_reads")

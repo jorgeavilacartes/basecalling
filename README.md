@@ -41,7 +41,7 @@ python feito/test.py --path-test data/subsample_val.hdf5 --batch-size 16 --model
 - Reads will be split by the dataloader in non-overlapping signals with length equal to the input of the model (this must be provided as parameter, but it shouldn't (FIXME:)), and an index will be created, to refer each portion of the basecalled signal to its portion of read.
 
 ```bash
-python feito/feito.py --path-fast5 data/RODAN/test/mouse-dataset/0 --len-subsignals 4096 --path-index output/basecalling/simplenet-index.csv --batch-size 16 --model SimpleNet --device cpu --path-checkpoint output/training/checkpoints/SimpleNet-epoch30.pt --path-fasta output/basecalling/simplenet-basecalled_reads.fa --path-reads output/basecalling/simplenet-basecalled_reads.fa
+python feito/basecall.py --path-fast5 data/RODAN/test/mouse-dataset/0 --len-subsignals 4096 --path-index output/basecalling/simplenet-index.csv --batch-size 16 --model SimpleNet --device cpu --path-checkpoint output/training/checkpoints/SimpleNet-epoch30.pt --path-fasta output/basecalling/simplenet-basecalled_reads.fa --path-reads output/basecalling/simplenet-basecalled_reads.fa
 ```
 
 ### **Reconstruct full reads from basecalled signals**
@@ -167,11 +167,13 @@ basecalling
 **Source code** 
 ```
 feito
+├── api: trainer, tester, basecaller APIs
 ├── callbacks: functions to be run after each epoch in the training
+├── dataloaders: classes to be used with DataLoader from pytorch
 ├── loss_functions: variants of CTCLoss
 ├── models: architectures and custom layers
 ├── utils: accuracy and others
-├── basecaller_trainer.py: custom pipeline to train a network
-├── dataloader.py: custom dataloader from hdf5 files
-└── train.py: script to train a neural network
+├── feito.py: custom pipeline to basecall reads from fast5 files
+├── trainer.py: custom pipeline to train a basecaller
+└── tester.py: custom pipeline to test a basecaller ()
 ```
