@@ -1,21 +1,32 @@
 """Helper functions for basecalling"""
 
+import logging
+logging.basicConfig(level=logging.INFO,
+                    format='[FEITO-basecalling] - %(asctime)s. %(message)s',
+                    datefmt='%Y-%m-%d@%H:%M:%S')
+
 import numpy as np
 from typing import Optional
 from ont_fast5_api.fast5_interface import get_fast5_file
 
-def load_signal(path_fast5: str):
+def load_signal(path_fast5: str, scale=True):
     "Load a signal from fast5 file"    
     with get_fast5_file(path_fast5, mode="r") as f5:
         for read in f5.get_reads():
-            raw_signal = read.get_raw_data()
+            raw_signal = read.get_raw_data(scale=scale)
             len_signal = len(raw_signal)
             read_id    = read.read_id
             
     return raw_signal, read_id, len_signal
 
 
-def split_raw_signal(signal: np.ndarray, len_subsignals: int = 4096, left_trim: int= 0, right_trim: int = 0, len_overlap: int = 0, preprocess_signal: bool = True):
+def split_raw_signal(signal: np.ndarray, 
+                     len_subsignals: int = 4096, 
+                     left_trim: int= 0, 
+                     right_trim: int = 0, 
+                     len_overlap: int = 0, 
+                     preprocess_signal: bool = True
+                     ):
     """Return an array with non-overlapping signals of the same length.
     First the signal is trimmed (left/right), then the signal is padded with 0 
     in the end to have perfect subsignals of len_subsignal's lengths
@@ -41,7 +52,7 @@ def split_raw_signal(signal: np.ndarray, len_subsignals: int = 4096, left_trim: 
     len_padd = len_subsignals - (len(trimmed_signal) % len_subsignals)
     trimmed_signal = np.pad(trimmed_signal, (0,len_padd), 'constant', constant_values=(0,0))
     
-    # reshape trimmed signal
+    # reshape trimmed signal (one row for each subsignal)
     return trimmed_signal.reshape((-1,len_subsignals))
 
 
@@ -53,4 +64,6 @@ def preprocessing(signal, factor=1.4826):
     """
     med = np.median(signal)
     mad = np.median(np.absolute(signal - med)) * factor
+    logging.info(f"med: {med}")
+    logging.info(f"mad: {mad}")
     return (signal - med) / mad

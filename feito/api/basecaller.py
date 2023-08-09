@@ -2,9 +2,14 @@
 This class assumes that the input are fast5 files with ONE entire raw read
 Input is a single fast5 file or a directory with many fast5 files.
 """
+
+import logging
+logging.basicConfig(level=logging.INFO,
+                    format='[FEITO-basecalling] - %(asctime)s. %(message)s',
+                    datefmt='%Y-%m-%d@%H:%M:%S')
+
 # builtin libraries
 import re
-import logging
 from typing import Union, Optional
 from pathlib import Path
 from collections import namedtuple, defaultdict
@@ -36,11 +41,14 @@ class Basecaller:
         self.path_fasta  = path_fasta # to save basecalled raw-reads (if not None)
         self.rna = rna 
         self.alphabet    = "NACGU" if rna else "NACGT"
+        print(f"Alphabet Basecaller: {self.alphabet} | rna: {rna}")
         self.use_viterbi = use_viterbi
         self.search_algo = viterbi_search if use_viterbi else beam_search
         self.return_reads = return_reads 
 
-        assert not Path(self.path_fasta).is_file(), f"path_fasta exists: {path_fasta}"
+        if Path(self.path_fasta).is_file():
+            Path(self.path_fasta).unlink() # remove file
+
         Path(self.path_fasta).parent.mkdir(exist_ok=True, parents=True)
 
     def __call__(self,):
@@ -82,24 +90,23 @@ class Basecaller:
         "Return basecalled signals in the chosen alphabet"
         preds  = self.model(X) # preds shape: (len-signal, item, size-alphabet)
 
+        # torch.softmax(torch.tensor(pre[:,i,:]), dim=-1)
+
         if self.device == "cpu":
             basecalled_signals = list(
-                self.signal_to_read(signal=preds[:,item,:].detach().numpy(), use_viterbi=self.use_viterbi) 
+                self.signal_to_read(
+                    signal=torch.softmax(preds[:,item,:], dim=-1).detach().numpy(), use_viterbi=self.use_viterbi
+                ) 
                 for item in range(preds.shape[1])
                 )
         else:
             basecalled_signals = list(
-                self.signal_to_read(signal=preds[:,item,:].cpu().detach().numpy(), use_viterbi=self.use_viterbi) 
+                self.signal_to_read(
+                    signal=torch.softmax(preds[:,item,:], dim=-1).cpu().detach().numpy(), use_viterbi=self.use_viterbi
+                ) 
                 for item in range(preds.shape[1])
                 )
         return basecalled_signals
-
-    def label_to_alphabet(self, label):
-        """Map vector of integers to sequence in DNA or RNA alphabet
-        blanks are not considered.
-        """
-        
-        return "".join([self.int2char[i] for i in label if i > 0])
 
     def signal_to_read(self, signal, use_viterbi: bool = True):
         "Apply viterbi or beam search to a signal"

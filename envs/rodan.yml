@@ -1,0 +1,20 @@
+name: rodan
+channels:
+  - conda-forge
+  - bioconda
+  - anaconda
+  - pytorch 
+  - nvidia
+dependencies:
+  - python >=3.6, <3.9
+  - pip
+  - h5py
+  - numpy
+  - pytorch >=1.4,< 1.8
+  - cudatoolkit
+  - pyyaml
+  - tensorboard # <=1.15.0
+  - ont-fast5-api
+  - pip:
+    - fast-ctc-decode
+    - future

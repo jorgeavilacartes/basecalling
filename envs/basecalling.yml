@@ -11,11 +11,14 @@ dependencies:
   - h5py 
   - jupyterlab
   - seaborn
-  - pytorch=2.0
+  - pytorch=2.0.0
   - pytorch-cuda=11.7
-  - cudatoolkit=11.7
+  - cudatoolkit=11.8.0
   - tqdm
   - pyyaml
+  - biopython
+  - snakemake
+  - minimap2
   - pip
   - pip: 
     - ont-fast5-api

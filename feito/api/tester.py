@@ -47,7 +47,6 @@ class BasecallerTester:
         self.int2char = {i:c for i,c in enumerate(self.alphabet.replace("N",""), start=1)}
 
     def __call__(self, return_basecalled_signals: bool=True):
-        print("Que me dice")
         # inference
         accuracies, basecalled_signals = self.accuracy_all_dataset()
 
@@ -72,10 +71,26 @@ class BasecallerTester:
         "Return basecalled signals in the chosen alphabet"
 
         preds  = self.model(X) # preds shape: (len-signal, item, size-alphabet)
-        basecalled_signals = list(
-            self.signal_to_read(signal=preds[:,item,:].detach().numpy(), use_viterbi=self.use_viterbi, rna=self.rna) 
-            for item in range(preds.shape[1])
-            )
+
+        if self.device == "cpu":
+            basecalled_signals = list(
+                self.signal_to_read(
+                    signal=torch.softmax(preds[:,item,:], dim=-1).detach().numpy(), use_viterbi=self.use_viterbi
+                ) 
+                for item in range(preds.shape[1])
+                )
+        else:
+            basecalled_signals = list(
+                self.signal_to_read(
+                    signal=torch.softmax(preds[:,item,:], dim=-1).cpu().detach().numpy(), use_viterbi=self.use_viterbi
+                ) 
+                for item in range(preds.shape[1])
+                )
+
+        # basecalled_signals = list(
+        #     self.signal_to_read(signal=preds[:,item,:].detach().numpy(), use_viterbi=self.use_viterbi, rna=self.rna) 
+        #     for item in range(preds.shape[1])
+        #     )
 
         return basecalled_signals
 
@@ -89,7 +104,9 @@ class BasecallerTester:
         X, y, output_len, target_len = (x.to(self.device) for x in batch)
 
         basecalled_signals = self.basecall_one_batch(X)
-        ground_truth = np.apply_along_axis(lambda l: self.label_to_alphabet(l), 1, y.detach().numpy()) 
+
+        np_y = y.detach().numpy() if self.device == "cpu" else y.cpu().detach().numpy()
+        ground_truth = np.apply_along_axis(lambda l: self.label_to_alphabet(l), 1, np_y) 
         accuracy_batch = [self.accuracy(ref=gt, seq=bs) for gt,bs in zip(basecalled_signals, ground_truth)]
         
         return accuracy_batch, basecalled_signals

@@ -84,8 +84,8 @@ if __name__=="__main__":
     parser.add_argument("--device", help="cpu or gpu", type=str, dest="device", default=None)
     parser.add_argument("--path-checkpoint", help="path to checkpoint to be used with the model", type=str, dest="path_checkpoint")
     parser.add_argument("--path-fasta", help="file to save basecalled signals. If not provided only accuracy will be returned", default=None, type=str, dest="path_fasta")
-    parser.add_argument("--rna", help="Wheter to use RNA or DNA alphabet. Default: True", type=bool, default=True, dest="rna")
-    parser.add_argument("--use-viterbi", help="Use Viterbi Search for basecalling, or Beam Search. Default: True", type=bool, default=True, dest="use_viterbi")
+    parser.add_argument("--rna", help="use RNA alphabet if provided, otherwise use DNA alphabet", action="store_true", dest="rna")
+    parser.add_argument("--use-viterbi", help="Use Viterbi Search for basecalling, otherwise use Beam Search", action="store_true", dest="use_viterbi")
     args = parser.parse_args()
     
     accuracy = main(args)

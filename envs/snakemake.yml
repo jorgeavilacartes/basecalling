@@ -3,5 +3,5 @@ channels:
   - bioconda
   - conda-forge
 dependencies:
-  - snakemake-minimal
+  - snakemake-minimal # replace by snakemake (v.7)
   - pandas

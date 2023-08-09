@@ -1,7 +1,8 @@
-name: minimap2
+name: accuracy
 channels:
   - conda-forge
   - bioconda
   - anaconda
 dependencies:
-  - minimap2
+  - pysam
+  - pandas

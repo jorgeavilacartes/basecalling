@@ -1,25 +1,28 @@
 # !/usr/bin/bash
 
-# primary libraries
-import argparse
-from rich_argparse import RichHelpFormatter
-import logging # TODO: add loggings
-from pathlib import Path
-
-# torch
-import torch
-import torch.nn as nn
-from torch.utils.data import DataLoader # load batches to the network
-
-# feito 
-from api import Basecaller
-from models import SimpleNet, Rodan
-from dataloaders import DatasetBasecalling
-from utils.reconstruct_reads import ReconstructReads
+import logging
+logging.basicConfig(level=logging.INFO,
+                    format='[FEITO-basecalling] - %(asctime)s. %(message)s',
+                    datefmt='%Y-%m-%d@%H:%M:%S')
 
 # ---- 
-
+# primary libraries
+import argparse
+from pathlib import Path
+from rich_argparse import RichHelpFormatter
+    
 def main(args):
+
+    # torch
+    import torch
+    import torch.nn as nn
+    from torch.utils.data import DataLoader # load batches to the network
+
+    # feito 
+    from api import Basecaller
+    from models import SimpleNet, Rodan
+    from dataloaders import DatasetBasecalling
+    from utils.reconstruct_reads import ReconstructReads
 
     PATH_FAST5=[args.path_fast5] if Path(args.path_fast5).is_file() else  list(Path(args.path_fast5).rglob("*.fast5")) # file or set of reads 
     BATCH_SIZE=args.batch_size
@@ -82,14 +85,12 @@ def main(args):
     basecaller()
     
     # reconstruct basecalled reads
-    
     print("Reconstruction of reads")
     reconstruct_reads = ReconstructReads(
     path_index=PATH_INDEX,
     path_basecalled_reads=PATH_FASTA,
     path_reconstructed_reads=PATH_READS
     )
-
     reconstruct_reads()
 
 if __name__=="__main__":
@@ -113,8 +114,8 @@ if __name__=="__main__":
     parser.add_argument("--path-checkpoint", help="path to checkpoint to be used with the model", type=str, dest="path_checkpoint")
     parser.add_argument("--path-fasta", help="file to save basecalled signals", default="output/basecalling/basecalled_reads.fa", type=str, dest="path_fasta")
     parser.add_argument("--path-reads", help="file to save reconstructed reads", default="output/basecalling/reconstructed_reads.fa", type=str, dest="path_reads")
-    parser.add_argument("--rna", help="use RNA alphabet if True, otherwise use DNA alphabet. Default: True", type=bool, default=True, dest="rna")
-    parser.add_argument("--use-viterbi", help="Use Viterbi Search for basecalling if True, otherwise use Beam Search. Default: True", type=bool, default=True, dest="use_viterbi")
+    parser.add_argument("--rna", help="use RNA alphabet if provided, otherwise use DNA alphabet", action="store_true", dest="rna")
+    parser.add_argument("--use-viterbi", help="Use Viterbi Search for basecalling, otherwise use Beam Search", action="store_true", dest="use_viterbi")
     args = parser.parse_args()
     
     main(args)

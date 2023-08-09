@@ -30,14 +30,16 @@ class ReconstructReads:
         reconstructed_reads = self.reconstruct_reads(reads_by_portions)
         self.reads_to_fasta(reconstructed_reads)
 
-    def load_index(self,):
-        index = pd.read_csv(self.path_index, sep="\t")
+    def load_index(self,): 
+        # sep = "," if self.path_index.endswith("csv") else "\t"
+        index = pd.read_csv(self.path_index, index_col=False)
         return index
 
     def create_auxiliar_dict(self):
         id2info={}
         index=self.load_index()
-        
+        print(index.head())
+        print(index.columns)
         for read_id, idx, subsignal_id in  tqdm(zip(index.read_id, index.index.tolist(), index.subsignal_id.tolist()), total=index.shape[0]):
             id2info[int(idx)] = (read_id, int(subsignal_id))
 
@@ -78,7 +80,7 @@ class ReconstructReads:
 
     def reads_to_fasta(self, reconstructed_reads):
         # save reads to fasta
-        with open(self.path_reconstructed_reads, "a") as fp: 
+        with open(self.path_reconstructed_reads, "w") as fp: 
             for readid, read in reconstructed_reads.items():
                 fp.write(f">{readid}\n")
                 fp.write(read+"\n")
