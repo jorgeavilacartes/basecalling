@@ -31,10 +31,6 @@ sys.path.append(".")
 from feito.callbacks import CSVLogger  
 # ----
 
-import logging
-logger=logging.getLogger()
-logger.setLevel("INFO")
-
 _Path = Union[str,Path]
 _PathFast5 = Union[_Path,List[_Path]]
 
@@ -122,15 +118,15 @@ class DatasetBasecalling(Dataset):
 
 
     def load_subsignal(self, path_fast5, start, end,):
-        logging.info(f"{Path(path_fast5).stem}")
+        logging.debug(f"{Path(path_fast5).stem}")
         with get_fast5_file(path_fast5, mode="r") as f5:
             for read in f5.get_reads():
                 raw_signal = read.get_raw_data(scale=True)
                 split_signal = split_raw_signal(raw_signal,**self.kwargs_split_raw_signal) # apply (1) trim, (2) preprocessing and (3) padding if needed
-        logging.info(f"{raw_signal}")
-        logging.info(f"shape: {raw_signal.shape}")
+        logging.debug(f"{raw_signal}")
+        logging.debug(f"shape: {raw_signal.shape}")
         # return the required subsignal (row in the split_signal array)
         idx_subsignal = start // self.len_subsignals
         subsignal = split_signal[ idx_subsignal ,:]
-        logging.info(f"chunks is {type(split_signal)} of shape {split_signal.shape}")
+        logging.debug(f"chunks is {type(split_signal)} of shape {split_signal.shape}")
         return torch.from_numpy(np.expand_dims(subsignal, axis=0)).float()

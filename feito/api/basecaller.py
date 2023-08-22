@@ -30,23 +30,24 @@ _Path = Union[Path,str]
 
 class Basecaller:
 
-    def __init__(self, model, device, basecalling_loader, 
-                 path_fasta: Optional[_Path] = None, rna: bool = True, use_viterbi = True,
+    def __init__(self, model, device, dataloader, 
+                 path_fasta: Optional[_Path] = None, rna: bool = False, use_viterbi = False,
                  return_reads: bool = False
                  ):
         self.model  = model.to(device) # model with pretrained weigths loaded
         self.device = device
-        self.basecalling_loader = basecalling_loader # load signals
-        self.batch_size  = basecalling_loader.batch_size
+        self.dataloader = dataloader # load signals
+        self.batch_size  = dataloader.batch_size
         self.path_fasta  = path_fasta # to save basecalled raw-reads (if not None)
         self.rna = rna 
         self.alphabet    = "NACGU" if rna else "NACGT"
-        print(f"Alphabet Basecaller: {self.alphabet} | rna: {rna}")
+        logging.info(f"Alphabet Basecaller: {self.alphabet} | rna: {rna}")
         self.use_viterbi = use_viterbi
         self.search_algo = viterbi_search if use_viterbi else beam_search
-        self.return_reads = return_reads 
+        self.return_reads = return_reads
 
         if Path(self.path_fasta).is_file():
+            logging.info(f"Removing existing file {self.path_fasta}")
             Path(self.path_fasta).unlink() # remove file
 
         Path(self.path_fasta).parent.mkdir(exist_ok=True, parents=True)
@@ -55,11 +56,11 @@ class Basecaller:
         
         "Returns a list with accuracies and another list with basecalled signals"
         basecalled_signals = []
-        n_batches=len(self.basecalling_loader)
+        n_batches=len(self.dataloader)
         idx = 0 
         with tqdm(total=n_batches, leave=True, ncols=100, bar_format='{l_bar}{bar}| [{elapsed}{postfix}]') as progress_bar:
 
-            for n_batch, batch in enumerate(self.basecalling_loader):
+            for n_batch, batch in enumerate(self.dataloader):
                 X = batch.to(self.device)
                 if n_batch == 0: 
                     print(X.shape)
@@ -114,6 +115,6 @@ class Basecaller:
         if use_viterbi is True:
             seq, path = viterbi_search(signal, self.alphabet) 
         else:
-            seq, path = beam_search(signal, self.alphabet, beam_size=5, beam_cut_threshold=0.1)
+            seq, path = beam_search(signal, self.alphabet, beam_size=5, beam_cut_threshold=0.0)
 
         return seq

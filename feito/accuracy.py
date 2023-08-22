@@ -7,10 +7,15 @@
 # for both RNA and DNA:
 # minimap2 --secondary=no -ax map-ont -t 32 --cs genomefile fastafile > file.sam
 #
+import logging
+logging.basicConfig(level=logging.DEBUG,
+                    format='[FEITO-accuracy] - %(asctime)s. %(message)s',
+                    datefmt='%Y-%m-%d@%H:%M:%S')
 
+import json
+from pathlib import Path
 import re, sys, argparse, pysam
 import numpy as np
-
 
 def parse_cs_tag(tag, refseq, readseq, debug=False):
     ret = ""
@@ -75,7 +80,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="samparse")
     parser.add_argument("samfile", default=None, type=str)
     parser.add_argument("genomefile", default=None, type=str)
+    parser.add_argument("--path-save", help="json file to store results", default=None, dest="path_save")
     parser.add_argument("-k", "--keepall", default=False, action="store_true", help="do not discard supplementary alignments")
+    
     args = parser.parse_args()
 
     fastafile = pysam.FastaFile(args.genomefile)
@@ -96,7 +103,19 @@ if __name__ == "__main__":
         #print(read.qname+","+read.reference_name+","+",".join(map(str, ans[2:])))
         arr.append([ans[2], ans[3], ans[4], ans[5]])
     arr = np.array(arr)
-    # print(len(arr))
+    logging.debug(f"shape of 'array': {arr.shape}")
+    
     print("Total:", len(arr), "Median accuracy:", np.median(arr[:,0]), "Average accuracy:", np.mean(arr[:,0]), "std:", np.std(arr[:,0]))
     print("Median  - Mismatch:", np.median(arr[:,1]), "Deletions:", np.median(arr[:,2]), "Insertions:", np.median(arr[:,3]))
     print("Average - Mismatch:", np.mean(arr[:,1]), "Deletions:", np.mean(arr[:,2]), "Insertions:", np.mean(arr[:,3]))
+
+    if args.path_save:
+        Path(args.path_save).parent.mkdir(exist_ok=True, parents=True)
+        stats={
+            "n_reads": len(arr), 
+            "median_accuracy": np.median(arr[:,0]),
+            "average_accuracy:": np.mean(arr[:,0]), 
+            "std": np.std(arr[:,0])
+        }
+        with open(args.path_save, "w") as fp:
+            json.dump( stats, fp, indent=1)

@@ -2,7 +2,7 @@
 
 import logging
 logging.basicConfig(level=logging.INFO,
-                    format='[FEITO-basecalling] - %(asctime)s. %(message)s',
+                    format='[FEITO-basecall] - %(asctime)s. %(message)s',
                     datefmt='%Y-%m-%d@%H:%M:%S')
 
 # ---- 
@@ -74,7 +74,7 @@ def main(args):
     
     basecaller = Basecaller(
         model=model, device=device, 
-        basecalling_loader=basecalling_dataloader,
+        dataloader=basecalling_dataloader,
         path_fasta=PATH_FASTA,
         rna=RNA,
         use_viterbi=USE_VITERBI,

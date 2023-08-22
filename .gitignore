@@ -1,7 +1,9 @@
 data/
 output*/
+debug/
 .vscode/
 *__pycache__/
 *.py.swp
 .snakemake/
 *log
+*txt

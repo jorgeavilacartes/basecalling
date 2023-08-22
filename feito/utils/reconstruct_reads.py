@@ -12,12 +12,14 @@ from collections import defaultdict, namedtuple
 
 class ReconstructReads:
 
-    def __init__(self, path_index, path_basecalled_reads, path_reconstructed_reads):
+    def __init__(self, path_index, path_basecalled_reads, path_reconstructed_reads, reverse_seqs: bool=True):
                  
         self.path_index = path_index
         self.path_basecalled_reads = path_basecalled_reads
         self.path_reconstructed_reads = path_reconstructed_reads
+        self.reverse_seqs = reverse_seqs
         self.index_dict = self.create_auxiliar_dict()
+        
 
     def __call__(self,):
         """Reconstruct complete reads from portions of basecalled reads
@@ -74,6 +76,9 @@ class ReconstructReads:
 
             lseqs = sorted(lseqs, key=lambda t: t[0])
             read = "".join([str(s[1]) for s in lseqs])
+
+            if self.reverse_seqs:
+                read = read[::-1]
             reconstructed_reads[read_id] = read
         
         return reconstructed_reads
