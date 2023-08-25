@@ -17,7 +17,7 @@ class ModelCheckpoint:
         # create parent folders for directory path where weights will be saved
         self.dirsave.mkdir(exist_ok=True, parents=True)
 
-    def __call__(self, model, current_loss, best_loss, epoch):
+    def __call__(self, model, optimizer, current_loss, best_loss, epoch):
         "Save model weights and biases if loss decreases. Returns best loss so far"
                
         name_model = model.__class__.__name__
@@ -28,7 +28,14 @@ class ModelCheckpoint:
             filename = f"{name_model}-epoch{epoch}.pt"
             path_save = self.dirsave.joinpath(filename)
             print(f"saving model for epoch {epoch}")
-            torch.save(model.state_dict(), path_save)
+            torch.save(
+                {
+                    "weights": model.state_dict(),
+                    "optimizer": optimizer.state_dict(),
+                    "epoch": epoch
+                    # "scheduler": scheduler.state_dict()
+                }, 
+                path_save)
         
             return current_loss
         

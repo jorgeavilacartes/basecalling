@@ -1,8 +1,8 @@
 # Model
 MODEL: "Rodan" # "SimpleNet"
 DEVICE: "cuda" # cpu
-# CHECKPOINT: "output-rodan/training/checkpoints/Rodan-epoch29.pt" 
-CHECKPOINT: "../RODAN/rodan-checkpoint.pt"
+CHECKPOINT: "output-rodan/training/checkpoints/Rodan-epoch29.pt" 
+# CHECKPOINT: "../RODAN/rodan-checkpoint.pt"
 INPUT_LEN: 4096
 BATCH_SIZE: 32
 PATH_OUTPUT: "output-rodan/basecalling" #"output-rodan/basecalling" #"output/basecalling"

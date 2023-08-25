@@ -37,7 +37,7 @@ class BasecallerTrainer:
                     callback()
                 elif callback.__class__.__name__ == "ModelCheckpoint":
                     print(f"calling callback {callback.__class__.__name__}")
-                    best_loss = callback(model=self.model, current_loss=val_loss, best_loss=best_loss, epoch=epoch)
+                    best_loss = callback(model=self.model, optimizer=self.optimizer, current_loss=val_loss, best_loss=best_loss, epoch=epoch)
         
         print("Done!")
 
@@ -49,7 +49,8 @@ class BasecallerTrainer:
         # Compute prediction error
         preds  = self.model(X)
         # output_len = [preds.shape[0] for _ in range(preds.shape[1])]
-        loss = self.criterion(preds, y, output_len, target_len)
+        # loss = self.criterion(preds, y, output_len, target_len) # ctc loss
+        loss = self.criterion(preds, y, target_len) # ctc_smooth_smoothing
 
         if loss.item() == float("inf"):
             # print(torch.nn.CTCLoss(reduction="none")(preds, y, output_len, target_len))
@@ -59,7 +60,6 @@ class BasecallerTrainer:
             sys.exit()
 
         # Backpropagation
-        self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
         
@@ -95,7 +95,9 @@ class BasecallerTrainer:
         self.model.eval()
         X, y, output_len, target_len = (x.to(self.device) for x in batch)
         preds  = self.model(X)
-        loss = self.criterion(preds, y, output_len, target_len)
+        # loss = self.criterion(preds, y, output_len, target_len)
+        loss = self.criterion(preds, y, target_len) # ctc_smooth_smoothing
+
         
         return loss  
         

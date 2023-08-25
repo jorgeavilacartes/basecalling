@@ -4,22 +4,21 @@ import argparse
 from rich_argparse import RichHelpFormatter
 import logging # TODO: add loggings
 from pathlib import Path
-
-# torch
-import torch
-import torch.nn as nn
-from torch.utils.data import DataLoader # load batches to the network
-
-# feito 
-from api import Trainer
-from models import SimpleNet, Rodan
-from loss_functions import ctc_label_smoothing_loss
-from dataloaders import DatasetONT
-from callbacks import CSVLogger, ModelCheckpoint
-
 # ----
 
 def main(args):
+
+    # torch
+    import torch
+    import torch.nn as nn
+    from torch.utils.data import DataLoader # load batches to the network
+
+    # feito 
+    from api import Trainer
+    from models import SimpleNet, Rodan
+    from loss_functions import ctc_label_smoothing_loss
+    from dataloaders import DatasetONT
+    from callbacks import CSVLogger, ModelCheckpoint
 
     ## get input parameters
     # datasets
@@ -46,7 +45,16 @@ def main(args):
     # network to use
     model=eval(f"{MODEL}()")
     model_output_len = model.output_len # another way to obtain the output of the model https://github.com/biodlab/RODAN/blob/029f7d5eb31b11b53537f13164bfedee0c0786e4/model.py#L317
-    loss_fn = nn.CTCLoss() #ctc_label_smoothing 
+    
+    # #
+    # model.eval()
+    # with torch.no_grad():
+    #     fakedata = torch.rand((1, 1, config.seqlen)) config.seqlen=4096
+    #     fakeout = model.forward(fakedata.to(device))
+    #     model_output_len = fakeout.shape[0]
+    # #
+    
+    loss_fn = ctc_label_smoothing_loss # nn.CTCLoss()
     optimizer = torch.optim.SGD(model.parameters(), lr = 1e-3)
 
     # dataset

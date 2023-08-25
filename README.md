@@ -120,7 +120,6 @@ To map the output of the model to an RNA sequence, use beam search to decode the
 To compare the basecalled read against the ground truth read, use Smith Waterman 
 
 **Connect to a GPU in the server**
-Avoid the usage of CPU10
 ```bash
 qrsh -l gpu_mem=8G
 ```
