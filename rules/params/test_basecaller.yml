@@ -1,18 +1,18 @@
 # Model
-MODEL: "Rodan" # "SimpleNet"
-DEVICE: "cuda" # cpu
-CHECKPOINT: "output-rodan/training/checkpoints/Rodan-epoch29.pt" 
+# MODEL: "Rodan" # "SimpleNet"
+# DEVICE: "cuda" # cpu
+# CHECKPOINT: "output-rodan-smoothctc/training/checkpoints/Rodan-epoch23.pt" 
 # CHECKPOINT: "../RODAN/rodan-checkpoint.pt"
-INPUT_LEN: 4096
-BATCH_SIZE: 32
-PATH_OUTPUT: "output-rodan/basecalling" #"output-rodan/basecalling" #"output/basecalling"
-RNA: False # alphabet. If False, then DNA alphabet is used
-USE_VITERBI: False # signal to alphabet. If False, beam_search is used 
+# INPUT_LEN: 4096
+# BATCH_SIZE: 32
+PATH_OUTPUT: "output-rodan-smoothctc/basecalling" #"output-rodan/basecalling" #"output/basecalling"
+# RNA: False # alphabet. If False, then DNA alphabet is used
+# USE_VITERBI: False # signal to alphabet. If False, beam_search is used 
 
 # Datasets
 SPECIES: 
   - "mouse"
-  - "yeast"
+  # - "yeast"
   - "human"
   - "poplar"
   - "arabidopsis"

@@ -51,14 +51,12 @@ def main(args):
     # load weights
     # https://pytorch.org/tutorials/beginner/saving_loading_models.html#load
     if device == "cpu":
-        model.load_state_dict(torch.load(PATH_CHECKPOINT, map_location=torch.device("cpu")))
+        model.load_state_dict(torch.load(PATH_CHECKPOINT, map_location=torch.device("cpu"))["weights"])
     else: 
-        model.load_state_dict(torch.load(PATH_CHECKPOINT))
+        model.load_state_dict(torch.load(PATH_CHECKPOINT)["weights"])
     model.eval()
     
     # dataset
-    print("Creating dataset and index")
-
     dataset_basecalling = DatasetBasecalling(
         path_fast5=PATH_FAST5,
         path_save_index=PATH_INDEX,
@@ -117,5 +115,5 @@ if __name__=="__main__":
     parser.add_argument("--rna", help="use RNA alphabet if provided, otherwise use DNA alphabet", action="store_true", dest="rna")
     parser.add_argument("--use-viterbi", help="Use Viterbi Search for basecalling, otherwise use Beam Search", action="store_true", dest="use_viterbi")
     args = parser.parse_args()
-    
+
     main(args)

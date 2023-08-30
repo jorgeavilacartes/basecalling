@@ -73,14 +73,27 @@ class DatasetBasecalling(Dataset):
         self.n_reads = len(self.path_fast5)
 
         # create index (read, portion)
-        self.index_logger = CSVLogger(
-            VARS_INDEX,
-            out_file=path_save_index, 
-            overwrite=True
-            )
-        
-        self.create_index()
-        self.index = self.index_logger.values
+        if not Path(path_save_index).is_file():
+            logging.info(f"Creating index for basecalling from raw signals: {str(path_save_index)}")
+            
+            self.index_logger = CSVLogger(
+                VARS_INDEX,
+                out_file=path_save_index, 
+                overwrite=True
+                )
+            self.create_index()
+            self.index = self.index_logger.values
+
+        else:
+            logging.info(f"Index file already exists, skipping construction.")
+            logging.info(f"Loading index from {str(path_save_index)}")
+            index_csv = pd.read_csv(path_save_index, index_col=False)
+            self.index = []
+            for record in index_csv.to_dict("records"):
+                del record["timestamp"]
+                self.index.append(
+                    Index(**record)
+                )
 
     def __getitem__(self, index: int): 
         "return (signal,) for one sample/individual in the dataset"

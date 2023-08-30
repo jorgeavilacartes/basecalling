@@ -64,6 +64,6 @@ def preprocessing(signal, factor=1.4826):
     """
     med = np.median(signal)
     mad = np.median(np.absolute(signal - med)) * factor
-    logging.info(f"med: {med}")
-    logging.info(f"mad: {mad}")
+    logging.debug(f"med: {med}")
+    logging.debug(f"mad: {mad}")
     return (signal - med) / mad
