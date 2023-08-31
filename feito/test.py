@@ -46,9 +46,9 @@ def main(args):
     # https://pytorch.org/tutorials/beginner/saving_loading_models.html#load
     # model.load_state_dict(PATH_CHECKPOINT)
     if device == "cpu":
-        model.load_state_dict(torch.load(PATH_CHECKPOINT, map_location=torch.device('cpu')))
+        model.load_state_dict(torch.load(PATH_CHECKPOINT, map_location=torch.device('cpu'))["weights"])
     else: 
-        model.load_state_dict(torch.load(PATH_CHECKPOINT))
+        model.load_state_dict(torch.load(PATH_CHECKPOINT)["weights"])
     model.eval()
     
     # dataset

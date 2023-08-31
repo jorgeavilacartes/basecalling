@@ -22,20 +22,16 @@ def main(args):
 
     ## get input parameters
     # datasets
-    PATH_TRAIN=args.path_train
-    PATH_VAL=args.path_val
-    EPOCHS=args.epochs
+    PATH_SET=args.path_set
     BATCH_SIZE=args.batch_size
     NUM_WORKERS=args.num_workers
     # training
     MODEL=args.model
     DEVICE=args.device 
-    PATH_WEIGHTS=args.path_weights
-    # callbacks
-    OUTFILE_TRAIN_LOGGER=args.outfile_train_logger   
-    DIRPATH_CHECKPOINT=args.dirpath_checkpoint
+    # OUTFILE_DEBUG=args.outfile_debug   
+    PATH_CHECKPOINT=args.path_checkpoint
 
-    print(PATH_TRAIN, PATH_VAL, EPOCHS, BATCH_SIZE, MODEL, OUTFILE_TRAIN_LOGGER, DEVICE)
+    print(PATH_SET, BATCH_SIZE, MODEL, DEVICE)
 
     if DEVICE is None:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -46,10 +42,10 @@ def main(args):
     # network to use
     model=eval(f"{MODEL}()")
     model_output_len = model.output_len # another way to obtain the output of the model https://github.com/biodlab/RODAN/blob/029f7d5eb31b11b53537f13164bfedee0c0786e4/model.py#L317
-    
-    # load weights to be loaded to the model
-    checkpoint = torch.load(PATH_WEIGHTS) if PATH_WEIGHTS else None
-
+    try:
+        checkpoint = torch.load(PATH_CHECKPOINT)["weights"]
+    except:
+        checkpoint = torch.load(PATH_CHECKPOINT)
     # #
     # model.eval()
     # with torch.no_grad():
@@ -58,55 +54,52 @@ def main(args):
     #     model_output_len = fakeout.shape[0]
     # #
     
-    loss_fn = ctc_label_smoothing_loss # nn.CTCLoss()
-    optimizer = torch.optim.SGD(model.parameters(), lr = 1e-3, momentum=0.9)
+    loss_fn = ctc_label_smoothing_loss #  nn.CTCLoss() #  
+    optimizer = torch.optim.SGD(model.parameters(), lr = 1e-3)
 
     # dataset
-    dataset_train = DatasetONT(recfile=PATH_TRAIN, output_network_len=model_output_len)
-    dataset_val   = DatasetONT(recfile=PATH_VAL, output_network_len=model_output_len)
-
-    dataloader_train = DataLoader(dataset_train, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
-    dataloader_val = DataLoader(dataset_val, batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS)
+    dataset = DatasetONT(recfile=PATH_SET, output_network_len=model_output_len)
+    dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
 
     # Callbacks
-    csv_logger=CSVLogger(list_vars=["epoch","train_loss","val_loss"], out_file=OUTFILE_TRAIN_LOGGER, overwrite=True)
-    model_checkpoint = ModelCheckpoint(DIRPATH_CHECKPOINT)
+    # csv_logger=CSVLogger(list_vars=["epoch","train_loss","val_loss"], out_file=OUTFILE_DEBUG, overwrite=True)
+    # model_checkpoint = ModelCheckpoint(DIRPATH_CHECKPOINT)
 
     # Trainer
     trainer=Trainer(
         model=model,
         device=device,
-        train_loader=dataloader_train,
-        validation_loader=dataloader_val,
+        train_loader=None,
+        validation_loader=dataloader,
         criterion=loss_fn,
         optimizer=optimizer,
-        callbacks=[csv_logger, model_checkpoint],
-        checkpoint=checkpoint
+        callbacks=None,
+        checkpoint=checkpoint,
     )
 
     # fit the model
-    trainer.fit(epochs=EPOCHS)
+    loss = trainer.validate_one_epoch(epoch=0)
+
+    return loss 
 
 if __name__=="__main__":
 
     # Command line options
     parser = argparse.ArgumentParser(
-        description="Train basecaller", 
+        description="Debug basecaller", 
         formatter_class=RichHelpFormatter
     )
     # datasets
-    parser.add_argument("--path-train", help="Path to hdf5 file with training dataset", type=str, dest="path_train")
-    parser.add_argument("--path-val", help="Path to hdf5 file with validation dataset", type=str, dest="path_val")
-    parser.add_argument("--epochs", help="Number of epochs the model will be trained. Default 5", type=int, dest="epochs", default=5)
+    parser.add_argument("--path-set", help="Path to hdf5 file with split reads to evaluate", type=str, dest="path_set")
     parser.add_argument("--batch-size", help="Number of elements in each batch. Default 16", type=int, dest="batch_size", default=16)
     parser.add_argument("--num-workers", help="Number of workers to be used by Pytorch DataLoader class. Default 4", type=int, dest="num_workers", default=4)
-    # training
+    # inference
     parser.add_argument("--model", help="Name of the model. Options: 'SimpleNet', 'Rodan'. Default 'SimpleNet'", type=str, dest="model", default="SimpleNet")
     parser.add_argument("--device", help="Options: 'cpu' or 'cuda'. Default None, in this case it will try to use 'cuda' if available.", type=str, dest="device", default=None)
-    parser.add_argument("--path-weights", help="path to weights of a trained model", type=str, dest="path_weights", default=None)
+    parser.add_argument("--checkpoint", help="path to checkpoint to load weights", type=str, dest="path_checkpoint")
     # callbacks
-    parser.add_argument("--outfile-train-logger", help="File to store training and validation loss per epoch. Default 'output/training/metrics.csv'", type=str, dest="outfile_train_logger", default="output/training/metrics.csv")
-    parser.add_argument("--dirpath-checkpoint", help="directory where best weights will be saved. Default 'output/training/checkpoints'", type=str, dest="dirpath_checkpoint", default="output/training/checkpoints")
+    # parser.add_argument("--outfile-debug", help="File to store loss per batch. Default 'output/debug/loss-per-batch.csv'", type=str, dest="outfile_debug", default="output/debug/loss-per-batch.csv")
     args = parser.parse_args()
     
-    main(args)
+    loss = main(args)
+    print(loss)

@@ -12,7 +12,7 @@ PATH_OUTPUT: "output-rodan-smoothctc/basecalling" #"output-rodan/basecalling" #"
 # Datasets
 SPECIES: 
   - "mouse"
-  # - "yeast"
+  - "yeast"
   - "human"
   - "poplar"
   - "arabidopsis"

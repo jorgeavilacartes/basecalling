@@ -7,17 +7,29 @@ from typing import Optional, Callable, List
 _Callbacks=Optional[List[Callable]]
 _Epoch=Optional[int]
 
+import logging
+logging.basicConfig(level=logging.INFO,
+                    format='[FEITO-trainer] - %(asctime)s. %(message)s',
+                    datefmt='%Y-%m-%d@%H:%M:%S')
+
 class BasecallerTrainer:
     "Training and Validation of a model"
 
-    def __init__(self, model, device, train_loader, validation_loader, criterion, optimizer, callbacks: _Callbacks):
+    def __init__(self, model, device, train_loader, validation_loader, criterion, optimizer, callbacks: _Callbacks, checkpoint = None):
         self.model=model.to(device)
         self.device=device
         self.train_loader=train_loader
         self.validation_loader=validation_loader
         self.optimizer=optimizer
         self.criterion=criterion
-        self.callbacks=callbacks
+        self.callbacks=[callbacks] if not isinstance(callbacks,list) else callbacks
+
+        if checkpoint:
+            try:
+                self.model.load_state_dict(checkpoint)
+            except:
+                self.model.load_state_dict(checkpoint["weights"])
+                
 
     def fit(self, epochs):
         # track best loss validation
@@ -25,18 +37,20 @@ class BasecallerTrainer:
 
         for t in range(epochs):
             epoch=t+1
-            train_loss = self.train_one_epoch(epoch)    # returns a float
+            train_loss = self.train_one_epoch(epoch)    # returns a float # TODO: return a dictionary with different losses
             val_loss   = self.validate_one_epoch(epoch) # returns a float
-            print("Validation Loss", val_loss)
-
+            
+            logging.info("Training Loss", train_loss)
+            logging.info("Validation Loss", val_loss)
+            
             # callbacks
             for callback in self.callbacks:
                 
                 if callback.__class__.__name__ == "CSVLogger":
-                    print(f"calling callback {callback.__class__.__name__}")
+                    logging.info(f"calling callback {callback.__class__.__name__}, epoch={epoch}")
                     callback()
                 elif callback.__class__.__name__ == "ModelCheckpoint":
-                    print(f"calling callback {callback.__class__.__name__}")
+                    logging.info(f"calling callback {callback.__class__.__name__}, epoch={epoch}")
                     best_loss = callback(model=self.model, optimizer=self.optimizer, current_loss=val_loss, best_loss=best_loss, epoch=epoch)
         
         print("Done!")
@@ -97,7 +111,6 @@ class BasecallerTrainer:
         preds  = self.model(X)
         # loss = self.criterion(preds, y, output_len, target_len)
         loss = self.criterion(preds, y, target_len) # ctc_smooth_smoothing
-
         
         return loss  
         
