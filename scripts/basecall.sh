@@ -3,14 +3,15 @@ specie=$1
 # specie="mouse" # poplar
 echo $specie
 
-dirout="output-rodan-smoothctc"
+dirout="output-rodan-smoothctc-momentum"
+mkdir -p $dirout/basecalling/logs
 
 /usr/bin/time -v python feito/basecall.py \
 --path-fast5 data/RODAN/test/$specie-dataset \
 --len-subsignals 4096 \
 --batch-size 32 \
 --model Rodan \
---path-checkpoint $dirout/training/checkpoints/Rodan-epoch23.pt \
+--path-checkpoint $dirout/training/checkpoints/Rodan-epoch30.pt \
 --device cuda \
 --path-fasta $dirout/basecalling/$specie-basecalled_reads.fa \
 --path-reads $dirout/basecalling/$specie-full_reads.fa \

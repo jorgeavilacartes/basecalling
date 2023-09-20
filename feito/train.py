@@ -12,6 +12,7 @@ def main(args):
     import torch
     import torch.nn as nn
     from torch.utils.data import DataLoader # load batches to the network
+    from pytorch_ranger import Ranger
 
     # feito 
     from api import Trainer
@@ -59,7 +60,8 @@ def main(args):
     # #
     
     loss_fn = ctc_label_smoothing_loss # nn.CTCLoss()
-    optimizer = torch.optim.SGD(model.parameters(), lr = 1e-3, momentum=0.9)
+    # optimizer = torch.optim.SGD(model.parameters(), lr = 1e-3, momentum=0.9)
+    optimizer = Ranger(model.parameters(), lr=2e-3, weight_decay=0.01)
 
     # dataset
     dataset_train = DatasetONT(recfile=PATH_TRAIN, output_network_len=model_output_len)

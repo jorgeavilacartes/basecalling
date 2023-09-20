@@ -16,6 +16,7 @@ dependencies:
   - cudatoolkit=11.7
   - tqdm
   - pyyaml
+  - pytorch-ranger
   - pip
   - pip: 
     - ont-fast5-api
