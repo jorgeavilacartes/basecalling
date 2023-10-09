@@ -3,13 +3,13 @@ import h5py
 import torch
 
 from pathlib import Path
-from typing import Union
+from typing import Union, Optional
 from torch.utils.data import Dataset
 
 class DatasetONT(Dataset):
     "Load a single sample for training/evaluating the network"
     # TODO: remove output_network_len, it will be computed in the Trainer class
-    def __init__(self, recfile: Union[str,Path], output_network_len: int):
+    def __init__(self, recfile: Union[str,Path], output_network_len: int, augmentations: Optional[list[callable]]=None):
         """
         Args:
             recfile (Union[str,Path]): path to hdf5 file with events and labels
@@ -17,6 +17,7 @@ class DatasetONT(Dataset):
         """        
         self.recfile = recfile # hdf5 file with training data
         self.output_network_len = output_network_len
+        self.augmentations = [] if augmentations is None else augmentations
 
         # load metadata recfile
         h5 = h5py.File(self.recfile, "r")
@@ -42,6 +43,8 @@ class DatasetONT(Dataset):
         signals = torch.from_numpy(np.expand_dims(signal,axis=0))
         labels = torch.from_numpy(label)
         # print("labels from data loader", type(labels), labels)
+        for f in self.augmentations:
+            signals, labels = f(signals, labels)
 
         # define target and input lengths of the loss function
         target_lens = torch.from_numpy( np.array(len(np.trim_zeros(label))) ) # with numpy #TODO: check how to do this with pytorch

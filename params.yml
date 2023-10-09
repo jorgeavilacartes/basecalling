@@ -8,3 +8,7 @@ MODEL: "SimpleNet" # Rodan
 
 # Callbacks
 OUTFILE_TRAIN_LOGGER: "output/training/metrics.csv"
+
+AUGMENTATIONS:
+  # - "flip"
+  - "gaussian_noise"

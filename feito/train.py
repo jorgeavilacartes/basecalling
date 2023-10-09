@@ -21,6 +21,9 @@ def main(args):
     from dataloaders import DatasetONT
     from callbacks import CSVLogger, ModelCheckpoint
 
+    from augmentation.flip import flip
+    from augmentation.gaussian_noise import gaussian_noise
+
     ## get input parameters
     # datasets
     PATH_TRAIN=args.path_train
@@ -28,6 +31,8 @@ def main(args):
     EPOCHS=args.epochs
     BATCH_SIZE=args.batch_size
     NUM_WORKERS=args.num_workers
+    print(args.augmentation)
+    AUGMENTATION=[gaussian_noise]#[eval(aug) for aug in args.augmentation]
     # training
     MODEL=args.model
     DEVICE=args.device 
@@ -48,9 +53,13 @@ def main(args):
     model=eval(f"{MODEL}()")
     model_output_len = model.output_len # another way to obtain the output of the model https://github.com/biodlab/RODAN/blob/029f7d5eb31b11b53537f13164bfedee0c0786e4/model.py#L317
     
-    # load weights to be loaded to the model
-    checkpoint = torch.load(PATH_WEIGHTS) if PATH_WEIGHTS else None
+    # # load weights to be loaded to the model
+    # checkpoint = torch.load(PATH_WEIGHTS) if PATH_WEIGHTS else None
 
+    if device == "cpu":
+        model.load_state_dict(torch.load(PATH_WEIGHTS, map_location=torch.device('cpu'))["weights"])
+    else: 
+        model.load_state_dict(torch.load(PATH_WEIGHTS)["weights"])
     # #
     # model.eval()
     # with torch.no_grad():
@@ -64,7 +73,7 @@ def main(args):
     optimizer = Ranger(model.parameters(), lr=2e-3, weight_decay=0.01)
 
     # dataset
-    dataset_train = DatasetONT(recfile=PATH_TRAIN, output_network_len=model_output_len)
+    dataset_train = DatasetONT(recfile=PATH_TRAIN, output_network_len=model_output_len, augmentations=AUGMENTATION)
     dataset_val   = DatasetONT(recfile=PATH_VAL, output_network_len=model_output_len)
 
     dataloader_train = DataLoader(dataset_train, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
@@ -83,7 +92,7 @@ def main(args):
         criterion=loss_fn,
         optimizer=optimizer,
         callbacks=[csv_logger, model_checkpoint],
-        checkpoint=checkpoint
+        # checkpoint=checkpoint
     )
 
     # fit the model
@@ -102,6 +111,7 @@ if __name__=="__main__":
     parser.add_argument("--epochs", help="Number of epochs the model will be trained. Default 5", type=int, dest="epochs", default=5)
     parser.add_argument("--batch-size", help="Number of elements in each batch. Default 16", type=int, dest="batch_size", default=16)
     parser.add_argument("--num-workers", help="Number of workers to be used by Pytorch DataLoader class. Default 4", type=int, dest="num_workers", default=4)
+    parser.add_argument("--augmentation", help="list of augmentations to apply to signal/label", type=str, dest="augmentation", nargs="+", default=[])
     # training
     parser.add_argument("--model", help="Name of the model. Options: 'SimpleNet', 'Rodan'. Default 'SimpleNet'", type=str, dest="model", default="SimpleNet")
     parser.add_argument("--device", help="Options: 'cpu' or 'cuda'. Default None, in this case it will try to use 'cuda' if available.", type=str, dest="device", default=None)
